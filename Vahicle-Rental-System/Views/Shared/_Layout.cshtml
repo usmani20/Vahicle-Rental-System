@@ -21,6 +21,9 @@
     <link rel="stylesheet" href="~/css/style.css">
 </head>
 <body>
+   
+  
+
 
     <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
         <div class="container">
@@ -31,39 +34,61 @@
 
             <div class="collapse navbar-collapse" id="ftco-nav">
                 <ul class="navbar-nav ml-auto">
-                    <!-- Home Link -->
                     <li class="nav-item @(ViewData["ActivePage"] as string == "Home" ? "active" : "")">
                         <a href="@Url.Action("Index", "Home")" class="nav-link">Home</a>
                     </li>
-
-                    <!-- About Link -->
                     <li class="nav-item @(ViewData["ActivePage"] as string == "About" ? "active" : "")">
                         <a href="@Url.Action("About", "Home")" class="nav-link">About</a>
                     </li>
-
-                    <!-- Services Link -->
                     <li class="nav-item @(ViewData["ActivePage"] as string == "Services" ? "active" : "")">
                         <a href="@Url.Action("Services", "Home")" class="nav-link">Services</a>
                     </li>
-
-                    <!-- Pricing Link -->
                     <li class="nav-item @(ViewData["ActivePage"] as string == "Pricing" ? "active" : "")">
                         <a href="@Url.Action("Pricing", "Home")" class="nav-link">Pricing</a>
                     </li>
-
-                    <!-- Cars Link -->
                     <li class="nav-item @(ViewData["ActivePage"] as string == "Cars" ? "active" : "")">
                         <a href="@Url.Action("Cars", "Home")" class="nav-link">Cars</a>
                     </li>
-
-                    <!-- Blog Link -->
                     <li class="nav-item @(ViewData["ActivePage"] as string == "Blog" ? "active" : "")">
                         <a href="@Url.Action("Blog", "Home")" class="nav-link">Blog</a>
                     </li>
-
-                    <!-- Contact Link -->
                     <li class="nav-item @(ViewData["ActivePage"] as string == "Contact" ? "active" : "")">
                         <a href="@Url.Action("Contact", "Home")" class="nav-link">Contact</a>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="icon-user"></span>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <span style="font-size: 12px; margin-left: 5px;">
+                                    @User.Claims.FirstOrDefault(c => c.Type == "FullName")?.Value
+                                </span>
+                            }
+                        </a>
+
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <a class="dropdown-item" href="#">Dashboard</a>
+                                <div class="dropdown-divider"></div>
+
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
+                                    <button type="submit" class="dropdown-item" style="cursor:pointer;">
+                                        <span class="icon-sign-out mr-2"></span> Logout
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" href="@Url.Action("Login", "Account")">
+                                    <span class="icon-sign-in mr-2"></span> Login
+                                </a>
+                                <a class="dropdown-item" href="@Url.Action("Register", "Account")">
+                                    <span class="icon-pencil mr-2"></span> Register
+                                </a>
+                            }
+                        </div>
                     </li>
                 </ul>
             </div>
