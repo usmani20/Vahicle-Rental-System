@@ -27,7 +27,7 @@ builder.Services.AddAuthentication(options =>
 {
     googleOptions.ClientId = "546582215782-7fphlatbreiebkmp1l2g2doptbgbgul3.apps.googleusercontent.com";
     googleOptions.ClientSecret = "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";
-})
+});
 // 2. Facebook Login
 //.AddFacebook(facebookOptions =>
 //{

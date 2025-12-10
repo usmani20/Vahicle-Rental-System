@@ -139,6 +139,26 @@ namespace Vahicle_Rental_System.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
+            // --- ADMIN SEEDING LOGIC ---
+            // This ensures the Admin account exists the first time you try to log in.
+            if (!string.IsNullOrEmpty(model.Email) && model.Email.ToLower() == "admin@carbook.com")
+            {
+                var adminUser = _context.Users.FirstOrDefault(u => u.Email == "admin@carbook.com");
+                if (adminUser == null)
+                {
+                    var newAdmin = new User
+                    {
+                        Email = "admin@carbook.com",
+                        FullName = "System Administrator",
+                        // Hardcoded password: admin123
+                        Password = HashPassword("admin123")
+                    };
+                    _context.Users.Add(newAdmin);
+                    _context.SaveChanges();
+                }
+            }
+            // ---------------------------
+
             if (ModelState.IsValid)
             {
                 var hashedPassword = HashPassword(model.Password);
@@ -146,16 +166,8 @@ namespace Vahicle_Rental_System.Controllers
 
                 if (user != null)
                 {
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.Email),
-                        new Claim("FullName", user.FullName ?? "User"),
-                        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
-                    };
-
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), new AuthenticationProperties());
-
+                    // Use helper method to sign in with consistent claims
+                    await SignInUser(user);
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -180,6 +192,78 @@ namespace Vahicle_Rental_System.Controllers
                 var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
                 return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
             }
+        }
+
+        // GET: Edit Profile
+        [HttpGet]
+        public IActionResult EditProfile()
+        {
+            var userEmail = User.Identity.Name;
+            var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
+
+            if (user == null) return RedirectToAction("Login");
+
+            var model = new EditProfileViewModel
+            {
+                FullName = user.FullName,
+                Email = user.Email
+            };
+
+            return View(model);
+        }
+
+        // POST: Edit Profile
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var currentEmail = User.Identity.Name;
+            var user = _context.Users.FirstOrDefault(u => u.Email == currentEmail);
+
+            if (user == null) return RedirectToAction("Login");
+
+            // 1. Update Basic Info
+            user.FullName = model.FullName;
+
+            // 2. Update Email (Only if changed)
+            if (user.Email != model.Email)
+            {
+                // Check if new email is taken
+                if (_context.Users.Any(u => u.Email == model.Email))
+                {
+                    ModelState.AddModelError("Email", "This email is already in use.");
+                    return View(model);
+                }
+                user.Email = model.Email;
+            }
+
+            // 3. Update Password (Only if provided)
+            if (!string.IsNullOrEmpty(model.NewPassword))
+            {
+                user.Password = HashPassword(model.NewPassword);
+            }
+
+            _context.SaveChanges();
+
+            // Refresh the user's cookie to show new Name/Email immediately
+            await SignInUser(user);
+
+            TempData["SuccessMessage"] = "Profile updated successfully!";
+            return RedirectToAction("Index", "Home");
+        }
+
+        // Helper method to refresh cookie (Reuse the logic from Login)
+        private async Task SignInUser(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim("FullName", user.FullName ?? "User"),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
+            };
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity), new AuthenticationProperties());
         }
     }
 }
