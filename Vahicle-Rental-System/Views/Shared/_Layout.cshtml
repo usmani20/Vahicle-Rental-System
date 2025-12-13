@@ -1,6 +1,18 @@
 ﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+        /* 1. Make the dropdown trigger on hover (if not already handled) */
+        .navbar .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        /* 2. THE FIX: Bridge the gap */
+        .navbar .dropdown-menu {
+            margin-top: 0; /* Removes the gap causing the flicker */
+            top: 95%; /* Moves it up slightly to overlap the navbar, ensuring connection */
+        }
+    </style>
     <title>@ViewData["Title"] - Carbook</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">

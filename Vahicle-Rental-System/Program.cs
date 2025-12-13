@@ -1,17 +1,18 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-//using Microsoft.AspNetCore.Authentication.Facebook; // Add this using directive
-//using Microsoft.AspNetCore.Authentication.Twitter; // Add this using directive
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.MicrosoftAccount; // Ensure you installed this package
 using Microsoft.EntityFrameworkCore;
 using Vahicle_Rental_System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database
+// 1. Database Configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// --- UPDATED AUTHENTICATION CONFIGURATION ---
+// 2. Authentication Configuration
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -22,33 +23,36 @@ builder.Services.AddAuthentication(options =>
     options.LoginPath = "/Account/Login";
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 })
-// 1. Google Login
+// --- SOCIAL LOGINS ---
+// A. Google Login
 .AddGoogle(googleOptions =>
 {
-    googleOptions.ClientId = "546582215782-7fphlatbreiebkmp1l2g2doptbgbgul3.apps.googleusercontent.com";
-    googleOptions.ClientSecret = "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";
+    googleOptions.ClientId = builder.Configuration["Athentication:GoogleClientID"];
+    googleOptions.ClientSecret = builder.Configuration["Athentication:GoogleClientSecret"];
+})
+// B. Facebook Login
+.AddFacebook(facebookOptions =>
+{
+    facebookOptions.AppId = builder.Configuration["Athentication:FacebookAppId"];
+    facebookOptions.AppSecret = builder.Configuration["Athentication:FacebookAppSecret"];
+})
+// C. Microsoft (Outlook) Login
+.AddMicrosoftAccount(microsoftOptions =>
+{
+    microsoftOptions.ClientId = builder.Configuration["Athentication:MicrosoftClientId"];
+    microsoftOptions.ClientSecret = builder.Configuration["Athentication:MicrosoftClientSecret"];
 });
-// 2. Facebook Login
-//.AddFacebook(facebookOptions =>
-//{
-//    facebookOptions.AppId = "YOUR_FACEBOOK_APP_ID";
-//    facebookOptions.AppSecret = "YOUR_FACEBOOK_APP_SECRET";
-//})
-// 3. Twitter Login
-//.AddTwitter(twitterOptions =>
-//{
-//    twitterOptions.ConsumerKey = "YOUR_TWITTER_API_KEY";
-//    twitterOptions.ConsumerSecret = "YOUR_TWITTER_API_SECRET";
-//});
-// --------------------------------------------
+// ---------------------
 
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios.
     app.UseHsts();
 }
 
@@ -57,6 +61,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// 3. Enable Auth Middleware
 app.UseAuthentication();
 app.UseAuthorization();
 

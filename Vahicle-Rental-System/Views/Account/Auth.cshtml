@@ -252,7 +252,7 @@
                 height: 40px;
                 width: 40px;
                 color: #333;
-                text-decoration: none; /* Removes underline */
+                text-decoration: none;
             }
 
                 .social-container a:hover {
@@ -291,14 +291,14 @@
                 <h1 style="color: #01d28e;">Create Account</h1>
 
                 <div class="social-container">
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social">
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social" title="Login with Facebook">
                         <span class="icon-facebook"></span>
                     </a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social">
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social" title="Login with Google">
                         <span class="icon-google"></span>
                     </a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Twitter" })" class="social">
-                        <span class="icon-twitter"></span>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Microsoft" })" class="social" title="Login with Outlook">
+                        <span class="icon-envelope"></span>
                     </a>
                 </div>
 
@@ -323,14 +323,14 @@
                 <h1 style="color: #01d28e;">Sign in</h1>
 
                 <div class="social-container">
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social">
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social" title="Login with Facebook">
                         <span class="icon-facebook"></span>
                     </a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social">
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social" title="Login with Google">
                         <span class="icon-google"></span>
                     </a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Twitter" })" class="social">
-                        <span class="icon-twitter"></span>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Microsoft" })" class="social" title="Login with Outlook">
+                        <span class="icon-envelope"></span>
                     </a>
                 </div>
 
