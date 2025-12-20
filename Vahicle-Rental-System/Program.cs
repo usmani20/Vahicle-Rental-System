@@ -9,8 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Database Configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sqlOptions =>
+    {
+        // This tells EF Core to retry up to 5 times if the connection drops
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null);
+    }));
 
 // 2. Authentication Configuration
 builder.Services.AddAuthentication(options =>
