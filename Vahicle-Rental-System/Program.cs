@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.Facebook;
-using Microsoft.AspNetCore.Authentication.MicrosoftAccount; // Ensure you installed this package
 using Microsoft.EntityFrameworkCore;
 using Vahicle_Rental_System.Data;
 
@@ -9,16 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // 1. Database Configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString, sqlOptions =>
-    {
-        // This tells EF Core to retry up to 5 times if the connection drops
-        sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,
-            maxRetryDelay: TimeSpan.FromSeconds(30),
-            errorNumbersToAdd: null);
-    }));
+    options.UseSqlServer(connectionString));
 
 // 2. Authentication Configuration
 builder.Services.AddAuthentication(options =>
@@ -31,26 +20,32 @@ builder.Services.AddAuthentication(options =>
     options.LoginPath = "/Account/Login";
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
 })
-// --- SOCIAL LOGINS ---
-// A. Google Login
+// --- FIX: Fallbacks prevent the "ClientId" startup crash ---
 .AddGoogle(googleOptions =>
 {
-    googleOptions.ClientId = builder.Configuration["Athentication:GoogleClientID"];
-    googleOptions.ClientSecret = builder.Configuration["Athentication:GoogleClientSecret"];
+    googleOptions.ClientId = builder.Configuration["Authentication:GoogleClientID"] ?? "placeholder-id";
+    googleOptions.ClientSecret = builder.Configuration["Authentication:GoogleClientSecret"] ?? "placeholder-secret";
 })
-// B. Facebook Login
 .AddFacebook(facebookOptions =>
 {
-    facebookOptions.AppId = builder.Configuration["Athentication:FacebookAppId"];
-    facebookOptions.AppSecret = builder.Configuration["Athentication:FacebookAppSecret"];
+    facebookOptions.AppId = builder.Configuration["Authentication:FacebookAppId"] ?? "placeholder-id";
+    facebookOptions.AppSecret = builder.Configuration["Authentication:FacebookAppSecret"] ?? "placeholder-secret";
 })
-// C. Microsoft (Outlook) Login
 .AddMicrosoftAccount(microsoftOptions =>
 {
-    microsoftOptions.ClientId = builder.Configuration["Athentication:MicrosoftClientId"];
-    microsoftOptions.ClientSecret = builder.Configuration["Athentication:MicrosoftClientSecret"];
+    microsoftOptions.ClientId = builder.Configuration["Authentication:MicrosoftClientId"] ?? "placeholder-id";
+    microsoftOptions.ClientSecret = builder.Configuration["Authentication:MicrosoftClientSecret"] ?? "placeholder-secret";
 });
-// ---------------------
+
+// --- 3. FIX: REGISTER SESSION SERVICES ---
+// These lines solve the "Session has not been configured" error
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 builder.Services.AddControllersWithViews();
 
@@ -60,7 +55,6 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios.
     app.UseHsts();
 }
 
@@ -69,9 +63,15 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// 3. Enable Auth Middleware
+// --- 4. FIX: MIDDLEWARE ORDER ---
+// Order is critical for Authentication and Sessions to work together
 app.UseAuthentication();
 app.UseAuthorization();
+
+// CRITICAL: UseSession MUST be placed after Auth and before MapControllerRoute
+app.UseSession();
+
+
 
 app.MapControllerRoute(
     name: "default",

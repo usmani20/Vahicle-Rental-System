@@ -14,5 +14,6 @@ namespace Vahicle_Rental_System.Models
         public required string Password { get; set; }
 
         public string? FullName { get; set; }
+        public bool IsEmailVerified { get; set; } // Add this property to fix CS0117
     }
 }

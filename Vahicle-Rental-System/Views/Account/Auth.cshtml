@@ -1,4 +1,6 @@
-﻿@{
+﻿@model Vahicle_Rental_System.Models.RegisterViewModel
+
+@{
     Layout = null;
     bool isRegister = ViewData["IsRegister"] as bool? ?? false;
 }
@@ -12,6 +14,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/icomoon.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <style>
         * {
@@ -19,7 +22,6 @@
         }
 
         body {
-            /* Theme Background Image */
             background: url('@Url.Content("~/images/bg_3.jpg")') no-repeat center center fixed;
             background-size: cover;
             display: flex;
@@ -31,7 +33,6 @@
             margin: 0;
         }
 
-            /* Dark overlay */
             body::before {
                 content: "";
                 position: absolute;
@@ -42,6 +43,21 @@
                 background: rgba(0,0,0,0.5);
                 z-index: -1;
             }
+
+        /* --- THEME COLORS & VALIDATION --- */
+        .input-validation-error {
+            border: 2px solid #ff4d4d !important;
+            background-color: #ffe6e6 !important;
+        }
+
+        .text-danger {
+            color: #ff4d4d;
+            font-size: 11px;
+            margin-bottom: 5px;
+            display: block;
+            text-align: left;
+            width: 100%;
+        }
 
         h1 {
             font-weight: 700;
@@ -67,7 +83,6 @@
             margin: 15px 0;
         }
 
-        /* --- THEME GREEN BUTTONS --- */
         button {
             border-radius: 20px;
             border: 1px solid #01d28e;
@@ -115,6 +130,55 @@
             border-radius: 5px;
         }
 
+        /* --- OTP & PASSWORD UI --- */
+        .input-group {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-send-otp {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            font-size: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            height: 32px;
+            z-index: 10;
+        }
+
+            .btn-send-otp:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
+
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #777;
+            display: none;
+        }
+
+        .otp-group-hidden {
+            display: none !important;
+        }
+
+        /* --- CONTAINER & OVERLAYS --- */
         .container {
             background-color: #fff;
             border-radius: 10px;
@@ -139,15 +203,15 @@
             z-index: 2;
         }
 
-        .container.right-panel-active .sign-in-container {
-            transform: translateX(100%);
-        }
-
         .sign-up-container {
             left: 0;
             width: 50%;
             opacity: 0;
             z-index: 1;
+        }
+
+        .container.right-panel-active .sign-in-container {
+            transform: translateX(100%);
         }
 
         .container.right-panel-active .sign-up-container {
@@ -184,14 +248,8 @@
             transform: translateX(-100%);
         }
 
-        /* --- THEME GREEN GRADIENT --- */
         .overlay {
-            background: #01d28e;
-            background: -webkit-linear-gradient(to right, #000000, #01d28e);
             background: linear-gradient(to right, #000000, #01d28e);
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: 0 0;
             color: #FFFFFF;
             position: relative;
             left: -100%;
@@ -241,7 +299,6 @@
             margin: 20px 0;
         }
 
-            /* UPDATED: Links are now block-level so the whole icon area is clickable */
             .social-container a {
                 border: 1px solid #DDDDDD;
                 border-radius: 50%;
@@ -271,13 +328,6 @@
             padding: 5px 10px;
             border-radius: 5px;
         }
-
-        .text-danger {
-            color: red;
-            font-size: 11px;
-            margin-bottom: 5px;
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -287,32 +337,43 @@
     <div class="container @(isRegister ? "right-panel-active" : "")" id="container">
 
         <div class="form-container sign-up-container">
-            <form asp-action="Register" method="post">
+            <form asp-action="Register" method="post" id="registerForm">
                 <h1 style="color: #01d28e;">Create Account</h1>
 
                 <div class="social-container">
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social" title="Login with Facebook">
-                        <span class="icon-facebook"></span>
-                    </a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social" title="Login with Google">
-                        <span class="icon-google"></span>
-                    </a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Microsoft" })" class="social" title="Login with Outlook">
-                        <span class="icon-envelope"></span>
-                    </a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social" title="Login with Facebook"><span class="icon-facebook"></span></a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social" title="Login with Google"><span class="icon-google"></span></a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Microsoft" })" class="social" title="Login with Outlook"><span class="icon-envelope"></span></a>
                 </div>
 
                 <span>or use your email for registration</span>
 
-                <input type="text" name="FullName" placeholder="Full Name" required />
-                <input type="email" name="Email" placeholder="Email" required />
-                <input type="password" name="Password" placeholder="Password" required />
-                <input type="password" name="ConfirmPassword" placeholder="Confirm Password" required />
+                <input asp-for="FullName" placeholder="Full Name" />
+                <span asp-validation-for="FullName" class="text-danger"></span>
 
-                @if (ViewData.ModelState["Email"] != null && ViewData.ModelState["Email"].Errors.Count > 0)
-                {
-                    <span class="text-danger">@ViewData.ModelState["Email"].Errors[0].ErrorMessage</span>
-                }
+                <div class="input-group">
+                    <input asp-for="Email" id="regEmail" placeholder="Email" />
+                    <button type="button" class="btn-send-otp" id="btnSendOtp" onclick="sendOtp()">Send OTP</button>
+                </div>
+                <span asp-validation-for="Email" class="text-danger"></span>
+                <span id="otpMessage" style="font-size:10px; margin-bottom:5px; text-align:left; width:100%;"></span>
+
+                <div class="password-wrapper">
+                    <input asp-for="Password" id="regPassword" placeholder="Password" oninput="checkInput('regPassword', 'toggleRegPass')" onfocus="showOtpField()" />
+                    <span id="toggleRegPass" class="toggle-password" onclick="togglePassword('regPassword', 'toggleRegPass')"><span class="icon-eye"></span></span>
+                </div>
+                <span asp-validation-for="Password" class="text-danger"></span>
+
+                <div class="password-wrapper">
+                    <input asp-for="ConfirmPassword" id="regConfirmPassword" placeholder="Confirm Password" oninput="checkInput('regConfirmPassword', 'toggleRegConfPass')" onfocus="showOtpField()" />
+                    <span id="toggleRegConfPass" class="toggle-password" onclick="togglePassword('regConfirmPassword', 'toggleRegConfPass')"><span class="icon-eye"></span></span>
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+
+                <div id="otpGroup" class="otp-group-hidden" style="width:100%">
+                    <input asp-for="Otp" placeholder="Enter 6-digit OTP" />
+                    <span asp-validation-for="Otp" class="text-danger"></span>
+                </div>
 
                 <button type="submit">Sign Up</button>
             </form>
@@ -321,19 +382,11 @@
         <div class="form-container sign-in-container">
             <form asp-action="Login" method="post">
                 <h1 style="color: #01d28e;">Sign in</h1>
-
                 <div class="social-container">
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social" title="Login with Facebook">
-                        <span class="icon-facebook"></span>
-                    </a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social" title="Login with Google">
-                        <span class="icon-google"></span>
-                    </a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Microsoft" })" class="social" title="Login with Outlook">
-                        <span class="icon-envelope"></span>
-                    </a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social"><span class="icon-facebook"></span></a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social"><span class="icon-google"></span></a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Microsoft" })" class="social"><span class="icon-envelope"></span></a>
                 </div>
-
                 <span>or use your account</span>
 
                 <input type="email" name="Email" placeholder="Email" required />
@@ -344,7 +397,7 @@
                     <span class="text-danger">Invalid login attempt.</span>
                 }
 
-                <a href="#">Forgot your password?</a>
+                <a href="@Url.Action("ForgotPassword", "Account")">Forgot your password?</a>
                 <button type="submit">Sign In</button>
             </form>
         </div>
@@ -365,18 +418,66 @@
         </div>
     </div>
 
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
     <script>
         const signUpButton = document.getElementById('signUp');
         const signInButton = document.getElementById('signIn');
         const container = document.getElementById('container');
 
-        signUpButton.addEventListener('click', () => {
-            container.classList.add("right-panel-active");
-        });
+        signUpButton.addEventListener('click', () => container.classList.add("right-panel-active"));
+        signInButton.addEventListener('click', () => container.classList.remove("right-panel-active"));
 
-        signInButton.addEventListener('click', () => {
-            container.classList.remove("right-panel-active");
-        });
+        function showOtpField() { $("#otpGroup").removeClass("otp-group-hidden"); }
+
+        function checkInput(inputId, iconId) {
+            let input = document.getElementById(inputId);
+            let iconBtn = document.getElementById(iconId);
+            iconBtn.style.display = (input.value.length > 0) ? "block" : "none";
+        }
+
+        function togglePassword(inputId, toggleId) {
+            let input = document.getElementById(inputId);
+            let iconSpan = document.getElementById(toggleId).querySelector('span');
+            if (input.type === "password") {
+                input.type = "text";
+                iconSpan.classList.replace('icon-eye', 'icon-eye-slash');
+            } else {
+                input.type = "password";
+                iconSpan.classList.replace('icon-eye-slash', 'icon-eye');
+            }
+        }
+
+        function startCountdown() {
+            let seconds = 30;
+            const btn = $("#btnSendOtp");
+            btn.prop("disabled", true);
+            let timer = setInterval(() => {
+                seconds--;
+                if (seconds > 0) btn.text(`Resend in ${seconds}s`);
+                else {
+                    clearInterval(timer);
+                    btn.text("Resend Code").prop("disabled", false);
+                }
+            }, 1000);
+        }
+
+        function sendOtp() {
+            let email = $("#regEmail").val();
+            if (!email) { $("#otpMessage").text("Enter email first").css("color", "red"); return; }
+            $("#btnSendOtp").prop("disabled", true).text("Sending...");
+            $.post('@Url.Action("SendOtp", "Account")', { email: email }, function(res) {
+                if (res.success) {
+                    $("#otpMessage").text(res.message).css("color", "#01d28e");
+                    startCountdown();
+                } else {
+                    $("#otpMessage").text(res.message).css("color", "red");
+                    $("#btnSendOtp").prop("disabled", false).text("Send OTP");
+                }
+            });
+        }
     </script>
 </body>
 </html>

@@ -4,20 +4,25 @@ namespace Vahicle_Rental_System.Models
 {
     public class RegisterViewModel
     {
-        [Required]
-        public required string FullName { get; set; }
+        [Required(ErrorMessage = "Full Name is required.")]
+        public string FullName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Email is required.")]
         [EmailAddress]
-        public required string Email { get; set; }
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Please enter a valid email address.")]
+        public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "OTP is required.")]
+        [StringLength(6, MinimumLength = 6, ErrorMessage = "OTP must be 6 digits.")]
+        public string Otp { get; set; }
+
+        [Required(ErrorMessage = "Password is required.")]
         [DataType(DataType.Password)]
-        public required string Password { get; set; }
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Min 6 characters required.")]
+        [RegularExpression(@"^(?=.*[A-Z])(?=.*\d).*$", ErrorMessage = "Must contain one capital letter and one number.")]
+        public string Password { get; set; }
 
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
-        [DataType(DataType.Password)]
-        public required string ConfirmPassword { get; set; }
-
+        public string ConfirmPassword { get; set; }
     }
 }
