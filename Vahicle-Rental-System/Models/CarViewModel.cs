@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Vahicle_Rental_System.Models.ViewModels
@@ -7,33 +8,39 @@ namespace Vahicle_Rental_System.Models.ViewModels
     {
         public int Id { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Brand is required")]
         public string Brand { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Model is required")]
         public string Model { get; set; }
-        public string Description { get; set; }
 
-        // Pricing
-        [Required]
+        // Make string nullable (?) so it is NOT required by default
+        public string? Description { get; set; }
+
+        [Required(ErrorMessage = "Self Drive Price is required")]
         public decimal PriceSelfDrive { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Driver Price is required")]
         public decimal PriceWithDriver { get; set; }
+
         public decimal OvertimeRate { get; set; }
-        public string FuelPolicy { get; set; }
 
-        // Specs
-        public string Transmission { get; set; }
+        // Make nullable (?)
+        public string? FuelPolicy { get; set; }
+
+        // Make nullable (?)
+        public string? Transmission { get; set; }
+
         public int Seats { get; set; }
-        public int CategoryId { get; set; } // Selected Category ID
 
-        // Media
+        [Required(ErrorMessage = "Please select a category")]
+        public int CategoryId { get; set; }
+
         public IFormFile? CarImage { get; set; }
         public string? ExistingImageUrl { get; set; }
+        public string? VideoUrl { get; set; }
 
-        [Url(ErrorMessage = "Please enter a valid URL")]
-        public string? VideoUrl { get; set; } // Optional 360 Video Link
-
-        // Dropdown List for View
+        [ValidateNever]
         public IEnumerable<SelectListItem>? Categories { get; set; }
     }
 }

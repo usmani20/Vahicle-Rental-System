@@ -1,0 +1,108 @@
+﻿@model Vahicle_Rental_System.Models.ViewModels.CarViewModel
+@{
+    ViewData["Title"] = "Edit Vehicle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 pt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">Edit Vehicle: @Model.Brand @Model.Model</h4>
+                </div>
+                <div class="card-body">
+
+                    <form asp-action="EditCar" asp-controller="Admin" asp-route-id="" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="ExistingImageUrl" />
+
+                        <h6 class="text-primary mt-3">Basic Information</h6>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                <label>Category</label>
+                                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control"></select>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Brand</label>
+                                <input asp-for="Brand" class="form-control" />
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Model</label>
+                                <input asp-for="Model" class="form-control" />
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary mt-4">Pricing & Policies</h6>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Self Drive Price</label>
+                                <input asp-for="PriceSelfDrive" type="number" class="form-control" />
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>With Driver Price</label>
+                                <input asp-for="PriceWithDriver" type="number" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label>Overtime Rate</label>
+                                <input asp-for="OvertimeRate" type="number" class="form-control" />
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label>Fuel Policy</label>
+                                <input asp-for="FuelPolicy" class="form-control" />
+                            </div>
+                        </div>
+
+                        <h6 class="text-primary mt-4">Specifications</h6>
+                        <hr />
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                <label>Transmission</label>
+                                <select asp-for="Transmission" class="form-control">
+                                    <option>Automatic</option>
+                                    <option>Manual</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Seats</label>
+                                <input asp-for="Seats" type="number" class="form-control" />
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>360° Video URL</label>
+                                <input asp-for="VideoUrl" class="form-control" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <div class="form-group border p-3 bg-light rounded">
+                            <label>Current Image:</label><br />
+                            @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
+                            {
+                                <img src="@Model.ExistingImageUrl" style="max-width: 200px; height: auto; border-radius: 5px;" class="mb-2" />
+                            }
+                            else
+                            {
+                                <span class="text-muted">No image uploaded.</span>
+                            }
+
+                            <label class="d-block mt-2">Change Image (Optional):</label>
+                            <input asp-for="CarImage" type="file" class="form-control-file" />
+                        </div>
+
+                        <button type="submit" class="btn btn-warning btn-lg btn-block mt-4 text-white">Update Vehicle</button>
+                        <a asp-action="Dashboard" class="btn btn-secondary btn-block mt-2">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

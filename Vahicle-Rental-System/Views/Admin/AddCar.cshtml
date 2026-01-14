@@ -4,6 +4,21 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<style>
+    .input-validation-error {
+        border: 2px solid #ff4d4d !important;
+        background-color: #ffe6e6 !important;
+    }
+
+    .text-danger {
+        color: #ff4d4d;
+        font-size: 12px;
+        font-weight: bold;
+        display: block;
+        margin-top: 5px;
+    }
+</style>
+
 <div class="container mt-5 pt-5">
     <div class="row justify-content-center">
         <div class="col-md-10">
@@ -12,22 +27,30 @@
                     <h4 class="mb-0">Add Vehicle Details</h4>
                 </div>
                 <div class="card-body">
+
+                    <div asp-validation-summary="All" class="alert alert-danger" style="display:none;"></div>
+
                     <form asp-action="AddCar" method="post" enctype="multipart/form-data">
 
                         <h6 class="text-primary mt-3">Basic Information</h6>
                         <hr />
                         <div class="row">
                             <div class="col-md-4 form-group">
-                                <label>Category</label>
-                                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control"></select>
+                                <label>Category <span style="color:red">*</span></label>
+                                <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control">
+                                    <option value="">-- Select Category --</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
                             </div>
                             <div class="col-md-4 form-group">
-                                <label>Brand</label>
+                                <label>Brand <span style="color:red">*</span></label>
                                 <input asp-for="Brand" class="form-control" placeholder="Honda" />
+                                <span asp-validation-for="Brand" class="text-danger"></span>
                             </div>
                             <div class="col-md-4 form-group">
-                                <label>Model</label>
+                                <label>Model <span style="color:red">*</span></label>
                                 <input asp-for="Model" class="form-control" placeholder="Civic" />
+                                <span asp-validation-for="Model" class="text-danger"></span>
                             </div>
                         </div>
 
@@ -37,22 +60,24 @@
                             <div class="col-md-6">
                                 <div class="card bg-light mb-3">
                                     <div class="card-body pt-2 pb-2">
-                                        <label class="font-weight-bold">Self Drive Price (24hrs)</label>
+                                        <label class="font-weight-bold">Self Drive Price (24hrs) <span style="color:red">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend"><span class="input-group-text">PKR</span></div>
                                             <input asp-for="PriceSelfDrive" type="number" class="form-control" placeholder="8500" />
                                         </div>
+                                        <span asp-validation-for="PriceSelfDrive" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="card bg-light mb-3">
                                     <div class="card-body pt-2 pb-2">
-                                        <label class="font-weight-bold">With Driver Price (10hrs)</label>
+                                        <label class="font-weight-bold">With Driver Price (10hrs) <span style="color:red">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend"><span class="input-group-text">PKR</span></div>
                                             <input asp-for="PriceWithDriver" type="number" class="form-control" placeholder="11000" />
                                         </div>
+                                        <span asp-validation-for="PriceWithDriver" class="text-danger"></span>
                                     </div>
                                 </div>
                             </div>
@@ -86,6 +111,7 @@
                             <div class="col-md-4 form-group">
                                 <label>360° Video URL (Optional)</label>
                                 <input asp-for="VideoUrl" class="form-control" placeholder="https://youtube.com/..." />
+                                <span asp-validation-for="VideoUrl" class="text-danger"></span>
                             </div>
                         </div>
 
@@ -95,8 +121,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Upload Image</label>
+                            <label>Upload Image <span style="color:red">*</span></label>
                             <input asp-for="CarImage" type="file" class="form-control-file" />
+                            <span asp-validation-for="CarImage" class="text-danger"></span>
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-lg btn-block mt-4">Save Vehicle</button>
@@ -106,3 +133,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
