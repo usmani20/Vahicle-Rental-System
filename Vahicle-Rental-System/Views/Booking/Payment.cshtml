@@ -1,0 +1,206 @@
+﻿@model Vahicle_Rental_System.Models.Booking
+@{
+    ViewData["Title"] = "Payment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int totalDays = (int)(Model.ReturnDate - Model.PickupDate).TotalDays;
+    if (totalDays <= 0) totalDays = 1;
+}
+
+<section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('/images/bg_3.jpg');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-start">
+            <div class="col-md-9 ftco-animate pb-5">
+                <p class="breadcrumbs">
+                    <span class="mr-2"><a href="@Url.Action("Index", "Home")">Home <i class="ion-ios-arrow-forward"></i></a></span>
+                    <span>Payment <i class="ion-ios-arrow-forward"></i></span>
+                </p>
+                <h1 class="mb-3 bread">Secure Checkout</h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .payment-section {
+        padding: 80px 0;
+        background: #f8f9fa;
+    }
+
+    .booking-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        overflow: hidden;
+        background: white;
+    }
+
+    .summary-sidebar {
+        border-left: 5px solid #01d28e;
+        padding: 40px 30px;
+        background-color: #ffffff;
+    }
+
+    .theme-green-text {
+        color: #01d28e;
+    }
+
+    .form-label {
+        font-weight: 700;
+        font-size: 12px;
+        color: #888;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-confirm {
+        background-color: #01d28e;
+        color: white;
+        border: none;
+        font-weight: 800;
+        padding: 18px;
+        border-radius: 8px;
+        width: 100%;
+        transition: 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-top: 10px;
+    }
+
+        .btn-confirm:hover {
+            background-color: #01b47a;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(1, 210, 142, 0.3);
+        }
+
+    .form-control {
+        border-radius: 8px;
+        padding: 12px 15px;
+        border: 1px solid #dee2e6;
+        height: auto;
+    }
+
+    .details-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 15px;
+        align-items: center;
+    }
+
+    .location-box {
+        background: #fbfbfb;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        border: 1px solid #f0f0f0;
+    }
+</style>
+
+<section class="payment-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-11 col-xl-10">
+                <div class="row booking-card">
+                    <div class="col-md-5 summary-sidebar">
+                        <div class="border-bottom pb-3 mb-4">
+                            <h3 class="font-weight-bold">Booking Summary</h3>
+                        </div>
+
+                        <div class="details-row">
+                            <span class="text-muted">Vehicle</span>
+                            <strong>@Model.Car.Brand @Model.Car.Model</strong>
+                        </div>
+                        <div class="details-row">
+                            <span class="text-muted">Rental Type</span>
+                            <span class="badge" style="background-color: rgba(1, 210, 142, 0.1); color: #01d28e;">
+                                @(Model.RentalType == "SelfDrive" ? "Self Drive" : "With Driver")
+                            </span>
+                        </div>
+                        <div class="details-row">
+                            <span class="text-muted">Duration</span>
+                            <strong>@totalDays Day(s)</strong>
+                        </div>
+
+                        <div class="location-box mt-4">
+                            <p class="form-label mb-2"><i class="ion-ios-pin theme-green-text mr-1"></i> Pickup</p>
+                            <p class="font-weight-bold mb-0 small">@Model.PickupLocation</p>
+                        </div>
+
+                        <div class="location-box">
+                            <p class="form-label mb-2"><i class="ion-ios-pin theme-green-text mr-1"></i> Drop-off</p>
+                            <p class="font-weight-bold mb-0 small">@Model.DropoffLocation</p>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <div class="details-row mb-0">
+                                <span class="h5 font-weight-bold mb-0">Total</span>
+                                <span class="h3 theme-green-text font-weight-bold mb-0">PKR @Model.TotalPrice.ToString("N0")</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7 p-4 p-lg-5">
+                        <h3 class="font-weight-bold mb-4">Credit / Debit Card</h3>
+
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger">@ViewBag.Error</div>
+                        }
+
+                        <form asp-action="ProcessPayment" method="post">
+                            <input type="hidden" name="BookingId" value="@Model.Id" />
+
+                            <div class="form-group mb-4">
+                                <label class="form-label">Cardholder Name</label>
+                                <input type="text" name="CardName" class="form-control" placeholder="Full Name" required />
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="form-label">Card Number</label>
+                                <div class="input-group">
+                                    <input type="text" id="cardNumber" name="CardNumber" class="form-control border-right-0"
+                                           placeholder="1111 2222 3333 4444" maxlength="19" required autocomplete="off" />
+                                    <div class="input-group-append">
+                                        <span class="input-group-text bg-white border-left-0"><i class="ion-ios-card theme-green-text"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <label class="form-label">Expiry Date</label>
+                                    <input type="text" name="Expiry" class="form-control" placeholder="MM/YY" maxlength="5" required />
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label">CVV</label>
+                                    <input type="password" name="CVV" class="form-control" placeholder="***" maxlength="3" required />
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-confirm shadow-sm">Confirm & Pay Now</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Space formatter for 16-digit card input
+        document.getElementById('cardNumber').addEventListener('input', function (e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 16) value = value.substring(0, 16);
+            let formattedValue = value.match(/.{1,4}/g);
+            e.target.value = formattedValue ? formattedValue.join(' ') : "";
+        });
+
+        document.getElementById('cardNumber').addEventListener('keypress', function (e) {
+            if (e.which < 48 || e.which > 57) e.preventDefault();
+        });
+    </script>
+}

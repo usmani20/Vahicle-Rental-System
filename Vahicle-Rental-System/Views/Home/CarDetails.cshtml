@@ -5,6 +5,67 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+    /* 1. Map popup height shortened to 300px to prevent scrolling */
+    #map-container {
+        height: 300px;
+        width: 100%;
+        background: #f0f0f0;
+        border-radius: 8px;
+    }
+
+    .map-trigger {
+        cursor: pointer;
+        background: #fff !important;
+    }
+
+    .search-results {
+        position: absolute;
+        z-index: 2000;
+        width: 100%;
+        background: white;
+        border: 1px solid #ddd;
+        display: none;
+        max-height: 120px; /* Shortened to keep button visible */
+        overflow-y: auto;
+    }
+
+    .search-item {
+        padding: 8px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        font-size: 13px;
+    }
+
+        .search-item:hover {
+            background: #01d28e;
+            color: white;
+        }
+
+    .modal-purple-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    /* 2. SUBMIT BUTTON MATCHED TO WEBSITE THEME (#01d28e) */
+    .btn-submit-map {
+        background-color: #01d28e !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        padding: 12px !important;
+        transition: background 0.3s ease;
+    }
+
+        .btn-submit-map:hover {
+            background-color: #01b47a !important;
+        }
+</style>
+
 <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('/images/bg_3.jpg');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
     <div class="container">
@@ -27,16 +88,14 @@
             <div class="col-lg-7 ftco-animate">
                 <div class="p-4 bg-white rounded shadow-sm text-center mb-4 d-flex align-items-center justify-content-center" style="min-height: 400px;">
                     <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/bg_1.jpg" : Model.ImageUrl)"
-                         alt="@Model.Model"
-                         class="img-fluid"
+                         alt="@Model.Model" class="img-fluid"
                          style="max-height: 380px; width: auto; object-fit: contain; mix-blend-mode: multiply; filter: contrast(110%);">
                 </div>
 
                 <div class="bg-white p-4 rounded shadow-sm">
                     <h4 class="mb-3" style="font-weight: 700; border-bottom: 2px solid #01d28e; display: inline-block; padding-bottom: 5px;">Vehicle Overview</h4>
                     <p style="font-size: 16px; line-height: 1.8; color: #495057;">@Model.Description</p>
-
-                    <h4 class="mt-4 mb-3" style="font-weight: 700; border-bottom: 2px solid #01d28e; display: inline-block; padding-bottom: 5px;">Included Features</h4>
+                    <hr>
                     <div class="row">
                         <div class="col-md-6">
                             <ul class="features list-unstyled">
@@ -58,62 +117,187 @@
                 <div class="bg-white p-4 rounded shadow-sm h-100 border">
                     <span class="subheading" style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: #01d28e;">@Model.Category?.Name</span>
                     <h2 class="mb-3" style="font-weight: 800; color: #000;">@Model.Brand @Model.Model</h2>
-
                     <hr>
 
-                    <div class="pricing-card mb-4">
-                        <p class="mb-3 text-muted font-weight-bold" style="font-size: 11px; letter-spacing: 1px;">AVAILABLE PACKAGES</p>
-
-                        <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded bg-light border">
-                            <div>
-                                <h5 class="mb-0" style="font-weight: 700;">Self Drive</h5>
-                                <small class="text-muted">24 Hour cycle</small>
-                            </div>
-                            <h4 class="mb-0" style="color: #01d28e; font-weight: 800;">PKR @Model.PriceSelfDrive.ToString("N0")</h4>
-                        </div>
-
-                        <div class="d-flex justify-content-between align-items-center p-3 rounded bg-light border">
-                            <div>
-                                <h5 class="mb-0" style="font-weight: 700;">With Driver</h5>
-                                <small class="text-muted">12 Hour cycle</small>
-                            </div>
-                            <h4 class="mb-0" style="color: #000; font-weight: 800;">PKR @Model.PriceWithDriver.ToString("N0")</h4>
-                        </div>
-                    </div>
-
-                    @if (!string.IsNullOrEmpty(Model.VideoUrl))
+                    @if (TempData["Error"] != null)
                     {
-                        <div class="mb-4">
-                            <a href="@Model.VideoUrl" class="popup-vimeo btn btn-outline-dark w-100 py-3 d-flex align-items-center justify-content-center" style="border-width: 2px; font-weight: 700; border-color: #01d28e;">
-                                <span class="ion-ios-play-circle mr-2" style="font-size: 20px; color: #01d28e;"></span> WATCH VIDEO TOUR
-                            </a>
-                        </div>
+                        <div class="alert alert-danger">@TempData["Error"]</div>
                     }
 
-                    <a href="#" class="btn btn-primary w-100 py-3 px-5 shadow-sm" style="border-radius: 5px; font-weight: 800; letter-spacing: 1px;">
-                        BOOK THIS VEHICLE
-                    </a>
+                    <form asp-controller="Booking" asp-action="Checkout" method="post">
+                        <input type="hidden" name="CarId" value="@Model.Id" />
 
-                    <div class="mt-4 pt-4 border-top">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted"><i class="flaticon-pistons mr-2" style="color: #01d28e;"></i> Transmission</span>
-                            <span class="font-weight-bold">@Model.Transmission</span>
+                        <div class="form-group mb-3">
+                            <label class="small font-weight-bold">WHERE TO PICK UP</label>
+                            <div class="input-group map-trigger" onclick="openFreeMap('PickupLocation')">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-light border-right-0"><i class="ion-ios-pin text-primary"></i></span>
+                                </div>
+                                <input type="text" name="PickupLocation" id="PickupLocation" class="form-control border-left-0 map-trigger" placeholder="Select Address on Map *" readonly required />
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted"><i class="flaticon-car-seat mr-2" style="color: #01d28e;"></i> Seats</span>
-                            <span class="font-weight-bold">@Model.Seats Adults</span>
+
+                        <div class="form-group mb-4">
+                            <label class="small font-weight-bold">WHERE TO DROP OFF</label>
+                            <div class="input-group map-trigger" onclick="openFreeMap('DropoffLocation')">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text bg-light border-right-0"><i class="ion-ios-pin text-primary"></i></span>
+                                </div>
+                                <input type="text" name="DropoffLocation" id="DropoffLocation" class="form-control border-left-0 map-trigger" placeholder="Select Address on Map *" readonly required />
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span class="text-muted"><i class="ion-ios-clock mr-2" style="color: #01d28e;"></i> Overtime</span>
-                            <span class="font-weight-bold">PKR @Model.OvertimeRate/hr</span>
+
+                        <div class="pricing-card mb-4">
+                            <p class="mb-3 text-muted font-weight-bold small">AVAILABLE PACKAGES</p>
+                            <div class="form-check d-flex justify-content-between align-items-center mb-2 p-3 rounded bg-light border">
+                                <label class="form-check-label d-flex align-items-center mb-0 w-100" style="cursor: pointer;">
+                                    <input type="radio" name="RentalType" value="SelfDrive" checked class="mr-3">
+                                    <div>
+                                        <h5 class="mb-0" style="font-weight: 700;">Self Drive</h5>
+                                        <small class="text-muted">24 Hour cycle</small>
+                                    </div>
+                                    <h4 class="ml-auto mb-0" style="color: #01d28e; font-weight: 800;">PKR @Model.PriceSelfDrive.ToString("N0")</h4>
+                                </label>
+                            </div>
+                            <div class="form-check d-flex justify-content-between align-items-center p-3 rounded bg-light border">
+                                <label class="form-check-label d-flex align-items-center mb-0 w-100" style="cursor: pointer;">
+                                    <input type="radio" name="RentalType" value="WithDriver" class="mr-3">
+                                    <div>
+                                        <h5 class="mb-0" style="font-weight: 700;">With Driver</h5>
+                                        <small class="text-muted">12 Hour cycle</small>
+                                    </div>
+                                    <h4 class="ml-auto mb-0" style="color: #000; font-weight: 800;">PKR @Model.PriceWithDriver.ToString("N0")</h4>
+                                </label>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="text-muted"><i class="ion-ios-flash mr-2" style="color: #01d28e;"></i> Fuel Policy</span>
-                            <span class="font-weight-bold">@Model.FuelPolicy</span>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="small font-weight-bold">PICK-UP DATE</label>
+                                    <input type="date" name="PickupDate" id="pickup_date" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="small font-weight-bold">DROP-OFF DATE</label>
+                                    <input type="date" name="ReturnDate" id="return_date" class="form-control" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 px-5 shadow-sm font-weight-bold">PROCEED TO PAYMENT</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+<div class="modal fade" id="freeMapModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-purple-header">
+                <h6 class="modal-title font-weight-bold text-dark">
+                    <span class="ion-ios-pin mr-2 text-primary" style="font-size: 20px;"></span>Select Location on Map
+                </h6>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="position-relative mb-3">
+                    <input id="map-search-input" class="form-control" type="text" placeholder="Start typing to search or drag the pin...">
+                    <div id="search-results-box" class="search-results shadow"></div>
+                </div>
+                <div id="map-container"></div>
+                <p class="small text-muted mt-2 text-center">Drag the marker to your exact location in Karachi.</p>
+            </div>
+            <div class="modal-footer border-0 p-3">
+                <input type="hidden" id="activeInputField">
+                <button type="button" class="btn btn-submit-map w-100 py-3" id="submitMapLocation">SUBMIT LOCATION</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let freeMap, mapMarker, currentActiveInput;
+        const karachiCoords = [24.8607, 67.0011];
+
+        function initFreeMap() {
+            if (freeMap) return;
+            freeMap = L.map('map-container').setView(karachiCoords, 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(freeMap);
+
+            mapMarker = L.marker(karachiCoords, { draggable: true }).addTo(freeMap);
+
+            mapMarker.on('dragend', function (event) {
+                var position = mapMarker.getLatLng();
+                updateAddressFromLatLng(position.lat, position.lng);
+            });
+        }
+
+        function openFreeMap(id) {
+            currentActiveInput = id;
+            $('#freeMapModal').modal('show');
+        }
+
+        $('#freeMapModal').on('shown.bs.modal', function () {
+            initFreeMap();
+            freeMap.invalidateSize();
+            freeMap.setView(karachiCoords, 13);
+            mapMarker.setLatLng(karachiCoords);
+            document.getElementById('map-search-input').value = "";
+        });
+
+        const searchInput = document.getElementById('map-search-input');
+        const resultsBox = document.getElementById('search-results-box');
+
+        searchInput.addEventListener('input', function () {
+            const query = this.value;
+            if (query.length < 3) { resultsBox.style.display = 'none'; return; }
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&accept-language=en`)
+                .then(res => res.json())
+                .then(data => {
+                    resultsBox.innerHTML = '';
+                    resultsBox.style.display = 'block';
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'search-item';
+                        div.innerText = item.display_name;
+                        div.onclick = () => {
+                            freeMap.setView([item.lat, item.lon], 16);
+                            mapMarker.setLatLng([item.lat, item.lon]);
+                            searchInput.value = item.display_name;
+                            resultsBox.style.display = 'none';
+                        };
+                        resultsBox.appendChild(div);
+                    });
+                });
+        });
+
+        function updateAddressFromLatLng(lat, lng) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en`)
+                .then(res => res.json())
+                .then(data => {
+                    searchInput.value = data.display_name;
+                });
+        }
+
+        document.getElementById("submitMapLocation").addEventListener("click", function () {
+            document.getElementById(currentActiveInput).value = searchInput.value || "Selected on Map";
+            $('#freeMapModal').modal('hide');
+        });
+
+        document.getElementById('pickup_date').addEventListener('change', function () {
+            var pickupDate = this.value;
+            var returnDateInput = document.getElementById('return_date');
+            returnDateInput.min = pickupDate;
+            if (returnDateInput.value < pickupDate) {
+                returnDateInput.value = pickupDate;
+            }
+        });
+    </script>
+}
