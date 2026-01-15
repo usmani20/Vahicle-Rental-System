@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mail;
@@ -11,6 +12,7 @@ using Vahicle_Rental_System.Models;
 
 namespace Vahicle_Rental_System.Controllers
 {
+    [Authorize]
     public class AccountController : Controller
     {
         private readonly AppDbContext _context;

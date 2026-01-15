@@ -1,0 +1,61 @@
+﻿@model IEnumerable<Vahicle_Rental_System.Models.Booking>
+@{
+    ViewData["Title"] = "My Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('/images/bg_3.jpg');" data-stellar-background-ratio="0.5">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-start">
+            <div class="col-md-9 ftco-animate pb-5">
+                <h1 class="mb-3 bread">My Bookings</h1>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="ftco-section bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="bg-white p-4 shadow-sm rounded">
+                    <table class="table table-hover">
+                        <thead style="background: #01d28e; color: white;">
+                            <tr>
+                                <th>Transaction ID</th>
+                                <th>Vehicle</th>
+                                <th>Dates</th>
+                                <th>Total Paid</th>
+                                <th>Status</th>
+                                <th>Receipt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="small font-weight-bold">@item.TransactionId</td>
+                                    <td>@item.Car.Brand @item.Car.Model</td>
+                                    <td>@item.PickupDate.ToString("MMM dd") - @item.ReturnDate.ToString("MMM dd, yyyy")</td>
+                                    <td class="font-weight-bold" style="color: #01d28e;">PKR @item.TotalPrice.ToString("N0")</td>
+                                    <td>
+                                        <span class="badge @(item.Status == "Confirmed" ? "badge-success" : "badge-warning") p-2">
+                                            @item.Status
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (item.Status == "Confirmed")
+                                        {
+                                            <a href="@Url.Action("Receipt", "Booking", new { id = item.Id })" class="btn btn-sm btn-outline-success">View</a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

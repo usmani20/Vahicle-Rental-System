@@ -14,7 +14,7 @@
                     <span class="mr-2"><a href="@Url.Action("Index", "Home")">Home <i class="ion-ios-arrow-forward"></i></a></span>
                     <span>Cars <i class="ion-ios-arrow-forward"></i></span>
                 </p>
-                <h1 class="mb-3 bread">Choose Your Car</h1>
+                <h1 class="mb-3 bread">Our Premium Fleet</h1>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
             @if (!Model.Any())
             {
                 <div class="col-12 text-center">
-                    <h3>No cars available at the moment.</h3>
+                    <h3 class="text-muted">No cars are currently available. Please check back later.</h3>
                 </div>
             }
             else
@@ -35,18 +35,25 @@
                 @foreach (var car in Model)
                 {
                     <div class="col-md-4">
-                        <div class="car-wrap rounded ftco-animate">
-                            <div class="img rounded d-flex align-items-end" style="background-image: url('@car.ImageUrl');">
+                        <div class="car-wrap rounded ftco-animate mb-4 shadow-sm bg-white">
+                            <div class="img rounded d-flex align-items-end" style="background-image: url('@car.ImageUrl'); height: 240px; background-size: cover;">
                             </div>
-                            <div class="text">
-                                <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home", new { id = car.Id })">@car.Brand @car.Model</a></h2>
-                                <div class="d-flex mb-3">
-                                    <span class="cat">@car.Category?.Name</span>
-                                    <p class="price ml-auto">PKR @car.PriceSelfDrive.ToString("N0") <span>/day</span></p>
+                            <div class="text p-4">
+                                <h2 class="mb-0">
+                                    <a href="@Url.Action("CarDetails", "Home", new { id = car.Id })">@car.Brand @car.Model</a>
+                                </h2>
+                                <div class="d-flex mb-3 align-items-center">
+                                    <span class="cat text-muted">@(car.Category?.Name ?? "Standard")</span>
+                                    <p class="price ml-auto mb-0" style="color: #01d28e; font-weight: 800;">
+                                        PKR @car.PriceSelfDrive.ToString("N0") <span class="text-muted small">/day</span>
+                                    </p>
                                 </div>
-                                <p class="d-flex mb-0 d-block">
-                                    <a href="#" class="btn btn-primary py-2 mr-1">Book now</a>
-                                    <a href="@Url.Action("CarDetails", "Home", new { id = car.Id })" class="btn btn-secondary py-2 ml-1">Details</a>
+                                <p class="d-flex mb-0">
+                                    <a href="@Url.Action("CarDetails", "Home", new { id = car.Id })"
+                                       class="btn btn-primary py-3 w-100 font-weight-bold"
+                                       style="background-color: #01d28e; border: none; text-transform: uppercase; letter-spacing: 1px;">
+                                        Book This Car
+                                    </a>
                                 </p>
                             </div>
                         </div>
@@ -64,8 +71,6 @@
                         <li class="active"><span>1</span></li>
                         <li><a href="#">2</a></li>
                         <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
                         <li><a href="#">&gt;</a></li>
                     </ul>
                 </div>

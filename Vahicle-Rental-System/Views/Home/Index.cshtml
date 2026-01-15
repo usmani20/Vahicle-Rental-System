@@ -10,14 +10,14 @@
         <div class="row no-gutters slider-text justify-content-start align-items-center justify-content-center">
             <div class="col-lg-8 ftco-animate">
                 <div class="text w-100 text-center mb-md-5 pb-md-5">
-                    <h1 class="mb-4">Fast &amp; Easy Way To Rent A Car</h1>
-                    <p style="font-size: 18px;">A small river named Duden flows by their place and supplies it with the necessary regelialia.</p>
+                    <h1 class="mb-4">Premium Vehicles For Every Journey</h1>
+                    <p style="font-size: 18px;">Experience the freedom of the road with our diverse fleet of well-maintained vehicles, offering comfort, safety, and reliability at unbeatable rates.</p>
                     <a href="https://vimeo.com/45830194" class="icon-wrap popup-vimeo d-flex align-items-center mt-4 justify-content-center">
                         <div class="icon d-flex align-items-center justify-content-center">
                             <span class="ion-ios-play"></span>
                         </div>
                         <div class="heading-title ml-5">
-                            <span>Easy steps for renting a car</span>
+                            <span>Watch our rental guide</span>
                         </div>
                     </a>
                 </div>
@@ -33,39 +33,40 @@
                 <div class="row no-gutters">
                     <div class="col-md-4 d-flex align-items-center">
                         <form action="#" class="request-form ftco-animate bg-primary">
-                            <h2>Make your trip</h2>
+                            <h2>Plan Your Trip</h2>
                             <div class="form-group">
                                 <label for="" class="label">Pick-up location</label>
-                                <input type="text" class="form-control" placeholder="City, Airport, Station, etc">
+                                <input type="text" class="form-control" placeholder="Select City or Neighborhood">
                             </div>
                             <div class="form-group">
                                 <label for="" class="label">Drop-off location</label>
-                                <input type="text" class="form-control" placeholder="City, Airport, Station, etc">
+                                <input type="text" class="form-control" placeholder="Return Address">
                             </div>
                             <div class="d-flex">
                                 <div class="form-group mr-2">
                                     <label for="" class="label">Pick-up date</label>
-                                    <input type="text" class="form-control" id="book_pick_date" placeholder="Date">
+                                    <input type="text" class="form-control" id="book_pick_date" placeholder="Departure">
                                 </div>
                                 <div class="form-group ml-2">
                                     <label for="" class="label">Drop-off date</label>
-                                    <input type="text" class="form-control" id="book_off_date" placeholder="Date">
+                                    <input type="text" class="form-control" id="book_off_date" placeholder="Return">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <input type="submit" value="Rent A Car Now" class="btn btn-secondary py-3 px-4">
+                                <input type="submit" value="Search Available Cars" class="btn btn-secondary py-3 px-4">
                             </div>
                         </form>
                     </div>
                     <div class="col-md-8 d-flex align-items-center">
                         <div class="services-wrap rounded-right w-100">
-                            <h3 class="heading-section mb-4">Better Way to Rent Your Perfect Cars</h3>
+                            <h3 class="heading-section mb-4">The Smarter Way to Explore</h3>
                             <div class="row d-flex mb-4">
                                 <div class="col-md-4 d-flex align-self-stretch ftco-animate">
                                     <div class="services w-100 text-center">
                                         <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-route"></span></div>
                                         <div class="text w-100">
-                                            <h3 class="heading mb-2">Choose Your Pickup Location</h3>
+                                            <h3 class="heading mb-2">Unlimited Routes</h3>
+                                            <p class="small text-muted">Navigate through Karachi and beyond with GPS-equipped vehicles.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -73,7 +74,8 @@
                                     <div class="services w-100 text-center">
                                         <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-handshake"></span></div>
                                         <div class="text w-100">
-                                            <h3 class="heading mb-2">Select the Best Deal</h3>
+                                            <h3 class="heading mb-2">Flexible Packages</h3>
+                                            <p class="small text-muted">Choose between Self-Drive or Professional Driver services.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -81,12 +83,13 @@
                                     <div class="services w-100 text-center">
                                         <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-rent"></span></div>
                                         <div class="text w-100">
-                                            <h3 class="heading mb-2">Reserve Your Rental Car</h3>
+                                            <h3 class="heading mb-2">Instant Booking</h3>
+                                            <p class="small text-muted">Secure your vehicle instantly with our real-time availability system.</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <p><a href="#" class="btn btn-primary py-3 px-4">Reserve Your Perfect Car</a></p>
+                            <p><a asp-action="Cars" asp-controller="Home" class="btn btn-primary py-3 px-4">Browse Entire Fleet</a></p>
                         </div>
                     </div>
                 </div>
@@ -99,13 +102,12 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12 heading-section text-center ftco-animate mb-5">
-                <span class="subheading">What we offer</span>
+                <span class="subheading">Exclusive Collection</span>
                 <h2 class="mb-2">Featured Vehicles</h2>
             </div>
         </div>
         <div class="row">
             <div class="col-md-12">
-                @* Use a unique ID to ensure the script targets the carousel correctly *@
                 <div id="home-car-carousel" class="carousel-car owl-carousel">
 
                     @if (Model != null && Model.Any())
@@ -126,8 +128,11 @@
                                             <p class="price ml-auto">PKR @car.PriceSelfDrive.ToString("N0") <span>/day</span></p>
                                         </div>
                                         <p class="d-flex mb-0 d-block">
-                                            <a href="#" class="btn btn-primary py-2 mr-1">Book now</a>
-                                            <a asp-controller="Home" asp-action="CarDetails" asp-route-id="@car.Id" class="btn btn-secondary py-2 ml-1">Details</a>
+                                            <a asp-controller="Home" asp-action="CarDetails" asp-route-id="@car.Id"
+                                               class="btn btn-primary py-2 w-100 font-weight-bold"
+                                               style="background-color: #01d28e; border: none; text-transform: uppercase; letter-spacing: 1px;">
+                                                Book This Car
+                                            </a>
                                         </p>
                                     </div>
                                 </div>
@@ -137,7 +142,7 @@
                     else
                     {
                         <div class="item text-center">
-                            <h3>No vehicles available.</h3>
+                            <h3>No vehicles available at this moment.</h3>
                         </div>
                     }
                 </div>
@@ -146,18 +151,17 @@
     </div>
 </section>
 
-@* ... Rest of your static sections (About, Services, Testimonials, etc.) ... *@
-
 @section Scripts {
     <script>
         $(document).ready(function() {
-            // This manually re-initializes the carousel to handle dynamic
             var carCarousel = $('#home-car-carousel');
             if (carCarousel.length > 0) {
                 carCarousel.owlCarousel({
-                    center: true,
+                    center: false,
                     loop: true,
                     items:1,
+                    autoplay: true,
+                    pauseOnHover: false,
                     margin: 30,
                     stagePadding: 0,
                     nav: false,
