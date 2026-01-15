@@ -1,5 +1,6 @@
-﻿@{
-    ViewData["Title"] = "Car Details";
+﻿@model Vahicle_Rental_System.Models.Car
+@{
+    ViewData["Title"] = Model.Brand + " " + Model.Model;
     ViewData["ActivePage"] = "Cars";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -12,265 +13,104 @@
                 <p class="breadcrumbs">
                     <span class="mr-2"><a href="@Url.Action("Index", "Home")">Home <i class="ion-ios-arrow-forward"></i></a></span>
                     <span class="mr-2"><a href="@Url.Action("Cars", "Home")">Cars <i class="ion-ios-arrow-forward"></i></a></span>
-                    <span>Car details <i class="ion-ios-arrow-forward"></i></span>
+                    <span>@Model.Brand Details</span>
                 </p>
-                <h1 class="mb-3 bread">Car Details</h1>
+                <h1 class="mb-3 bread">Vehicle Specifications</h1>
             </div>
         </div>
     </div>
 </section>
 
-<section class="ftco-section ftco-car-details">
+<section class="ftco-section ftco-car-details bg-light">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                <div class="car-details">
-                    <div class="img rounded" style="background-image: url('/images/bg_1.jpg');"></div>
-                    <div class="text text-center">
-                        <span class="subheading">Cheverolet</span>
-                        <h2>Mercedes Grand Sedan</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="row">
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-dashboard"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Mileage
-                                    <span>40,000</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
+            <div class="col-lg-7 ftco-animate">
+                <div class="p-4 bg-white rounded shadow-sm text-center mb-4 d-flex align-items-center justify-content-center" style="min-height: 400px;">
+                    <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/bg_1.jpg" : Model.ImageUrl)"
+                         alt="@Model.Model"
+                         class="img-fluid"
+                         style="max-height: 380px; width: auto; object-fit: contain; mix-blend-mode: multiply; filter: contrast(110%);">
                 </div>
-            </div>
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-pistons"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Transmission
-                                    <span>Manual</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-car-seat"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Seats
-                                    <span>5 Adults</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-backpack"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Luggage
-                                    <span>4 Bags</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-diesel"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Fuel
-                                    <span>Petrol</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 pills">
-                <div class="bd-example bd-example-tabs">
-                    <div class="d-flex justify-content-center">
-                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
 
-                            <li class="nav-item">
-                                <a class="nav-link active" id="pills-description-tab" data-toggle="pill" href="#pills-description" role="tab" aria-controls="pills-description" aria-expanded="true">Features</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="pills-manufacturer-tab" data-toggle="pill" href="#pills-manufacturer" role="tab" aria-controls="pills-manufacturer" aria-expanded="true">Description</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="pills-review-tab" data-toggle="pill" href="#pills-review" role="tab" aria-controls="pills-review" aria-expanded="true">Review</a>
-                            </li>
-                        </ul>
-                    </div>
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h4 class="mb-3" style="font-weight: 700; border-bottom: 2px solid #01d28e; display: inline-block; padding-bottom: 5px;">Vehicle Overview</h4>
+                    <p style="font-size: 16px; line-height: 1.8; color: #495057;">@Model.Description</p>
 
-                    <div class="tab-content" id="pills-tabContent">
-                        <div class="tab-pane fade show active" id="pills-description" role="tabpanel" aria-labelledby="pills-description-tab">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <ul class="features">
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Airconditions</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Child Seat</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>GPS</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Luggage</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Music</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-4">
-                                    <ul class="features">
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Seat Belt</li>
-                                        <li class="remove"><span class="ion-ios-close"></span>Sleeping Bed</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Water</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Bluetooth</li>
-                                        <li class="remove"><span class="ion-ios-close"></span>Onboard computer</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-4">
-                                    <ul class="features">
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Audio input</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Long Term Trips</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Car Kit</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Remote central locking</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Climate control</li>
-                                    </ul>
-                                </div>
+                    <h4 class="mt-4 mb-3" style="font-weight: 700; border-bottom: 2px solid #01d28e; display: inline-block; padding-bottom: 5px;">Included Features</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="features list-unstyled">
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Air Conditioning</li>
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Multimedia Audio</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="features list-unstyled">
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Central Locking</li>
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Bluetooth Connectivity</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-5 ftco-animate">
+                <div class="bg-white p-4 rounded shadow-sm h-100 border">
+                    <span class="subheading" style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: #01d28e;">@Model.Category?.Name</span>
+                    <h2 class="mb-3" style="font-weight: 800; color: #000;">@Model.Brand @Model.Model</h2>
+
+                    <hr>
+
+                    <div class="pricing-card mb-4">
+                        <p class="mb-3 text-muted font-weight-bold" style="font-size: 11px; letter-spacing: 1px;">AVAILABLE PACKAGES</p>
+
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-3 rounded bg-light border">
+                            <div>
+                                <h5 class="mb-0" style="font-weight: 700;">Self Drive</h5>
+                                <small class="text-muted">24 Hour cycle</small>
                             </div>
+                            <h4 class="mb-0" style="color: #01d28e; font-weight: 800;">PKR @Model.PriceSelfDrive.ToString("N0")</h4>
                         </div>
 
-                        <div class="tab-pane fade" id="pills-manufacturer" role="tabpanel" aria-labelledby="pills-manufacturer-tab">
-                            <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life One day however a small line of blind text by the name of Lorem Ipsum decided to leave for the far World of Grammar.</p>
-                            <p>When she reached the first hills of the Italic Mountains, she had a last view back on the skyline of her hometown Bookmarksgrove, the headline of Alphabet Village and the subline of her own road, the Line Lane. Pityful a rethoric question ran over her cheek, then she continued her way.</p>
-                        </div>
-
-                        <div class="tab-pane fade" id="pills-review" role="tabpanel" aria-labelledby="pills-review-tab">
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <h3 class="head">23 Reviews</h3>
-                                    <div class="review d-flex">
-                                        <div class="user-img" style="background-image: url('/images/person_1.jpg')"></div>
-                                        <div class="desc">
-                                            <h4>
-                                                <span class="text-left">Jacob Webb</span>
-                                                <span class="text-right">14 March 2018</span>
-                                            </h4>
-                                            <p class="star">
-                                                <span>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                </span>
-                                                <span class="text-right"><a href="#" class="reply"><i class="icon-reply"></i></a></span>
-                                            </p>
-                                            <p>When she reached the first hills of the Italic Mountains, she had a last view back on the skyline of her hometown Bookmarksgrov</p>
-                                        </div>
-                                    </div>
-                                    <!-- Additional reviews truncated for brevity -->
-                                </div>
-                                <div class="col-md-5">
-                                    <div class="rating-wrap">
-                                        <h3 class="head">Give a Review</h3>
-                                        <div class="wrap">
-                                            <p class="star">
-                                                <span>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    (98%)
-                                                </span>
-                                                <span>20 Reviews</span>
-                                            </p>
-                                            <!-- Other ratings truncated -->
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded bg-light border">
+                            <div>
+                                <h5 class="mb-0" style="font-weight: 700;">With Driver</h5>
+                                <small class="text-muted">12 Hour cycle</small>
                             </div>
+                            <h4 class="mb-0" style="color: #000; font-weight: 800;">PKR @Model.PriceWithDriver.ToString("N0")</h4>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<section class="ftco-section ftco-no-pt">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-12 heading-section text-center ftco-animate mb-5">
-                <span class="subheading">Choose Car</span>
-                <h2 class="mb-2">Related Cars</h2>
-            </div>
-        </div>
-        <div class="row">
-            <!-- Related Car 1 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-1.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Mercedes Grand Sedan</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Cheverolet</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
+                    @if (!string.IsNullOrEmpty(Model.VideoUrl))
+                    {
+                        <div class="mb-4">
+                            <a href="@Model.VideoUrl" class="popup-vimeo btn btn-outline-dark w-100 py-3 d-flex align-items-center justify-content-center" style="border-width: 2px; font-weight: 700; border-color: #01d28e;">
+                                <span class="ion-ios-play-circle mr-2" style="font-size: 20px; color: #01d28e;"></span> WATCH VIDEO TOUR
+                            </a>
                         </div>
-                        <p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a></p>
-                    </div>
-                </div>
-            </div>
-            <!-- Related Car 2 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-2.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Range Rover</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Subaru</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
+                    }
+
+                    <a href="#" class="btn btn-primary w-100 py-3 px-5 shadow-sm" style="border-radius: 5px; font-weight: 800; letter-spacing: 1px;">
+                        BOOK THIS VEHICLE
+                    </a>
+
+                    <div class="mt-4 pt-4 border-top">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted"><i class="flaticon-pistons mr-2" style="color: #01d28e;"></i> Transmission</span>
+                            <span class="font-weight-bold">@Model.Transmission</span>
                         </div>
-                        <p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a></p>
-                    </div>
-                </div>
-            </div>
-            <!-- Related Car 3 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-3.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Mercedes Grand Sedan</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Cheverolet</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted"><i class="flaticon-car-seat mr-2" style="color: #01d28e;"></i> Seats</span>
+                            <span class="font-weight-bold">@Model.Seats Adults</span>
                         </div>
-                        <p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a></p>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted"><i class="ion-ios-clock mr-2" style="color: #01d28e;"></i> Overtime</span>
+                            <span class="font-weight-bold">PKR @Model.OvertimeRate/hr</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted"><i class="ion-ios-flash mr-2" style="color: #01d28e;"></i> Fuel Policy</span>
+                            <span class="font-weight-bold">@Model.FuelPolicy</span>
+                        </div>
                     </div>
                 </div>
             </div>

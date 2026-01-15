@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IEnumerable<Vahicle_Rental_System.Models.Car>
+@{
     ViewData["Title"] = "Choose Your Car";
     ViewData["ActivePage"] = "Cars";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -22,62 +23,39 @@
 <section class="ftco-section bg-light">
     <div class="container">
         <div class="row">
-            <!-- Example Car Item 1 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-1.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Mercedes Grand Sedan</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Cheverolet</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
-                        </div>
-                        <p class="d-flex mb-0 d-block">
-                            <a href="#" class="btn btn-primary py-2 mr-1">Book now</a>
-                            <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Example Car Item 2 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-2.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Range Rover</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Subaru</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
-                        </div>
-                        <p class="d-flex mb-0 d-block">
-                            <a href="#" class="btn btn-primary py-2 mr-1">Book now</a>
-                            <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a>
-                        </p>
-                    </div>
+            @if (!Model.Any())
+            {
+                <div class="col-12 text-center">
+                    <h3>No cars available at the moment.</h3>
                 </div>
-            </div>
-
-            <!-- In a real app, you would delete the rest of these static items and use a foreach loop -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-3.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Mercedes Grand Sedan</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Cheverolet</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
+            }
+            else
+            {
+                @foreach (var car in Model)
+                {
+                    <div class="col-md-4">
+                        <div class="car-wrap rounded ftco-animate">
+                            <div class="img rounded d-flex align-items-end" style="background-image: url('@car.ImageUrl');">
+                            </div>
+                            <div class="text">
+                                <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home", new { id = car.Id })">@car.Brand @car.Model</a></h2>
+                                <div class="d-flex mb-3">
+                                    <span class="cat">@car.Category?.Name</span>
+                                    <p class="price ml-auto">PKR @car.PriceSelfDrive.ToString("N0") <span>/day</span></p>
+                                </div>
+                                <p class="d-flex mb-0 d-block">
+                                    <a href="#" class="btn btn-primary py-2 mr-1">Book now</a>
+                                    <a href="@Url.Action("CarDetails", "Home", new { id = car.Id })" class="btn btn-secondary py-2 ml-1">Details</a>
+                                </p>
+                            </div>
                         </div>
-                        <p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a></p>
                     </div>
-                </div>
-            </div>
-            <!-- ... (Keep other items or remove as needed) ... -->
+                }
+            }
 
         </div>
+
         <div class="row mt-5">
             <div class="col text-center">
                 <div class="block-27">

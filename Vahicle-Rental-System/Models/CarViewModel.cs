@@ -18,12 +18,12 @@ namespace Vahicle_Rental_System.Models.ViewModels
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "Self Drive Price is required")]
-        public decimal PriceSelfDrive { get; set; }
+        public int PriceSelfDrive { get; set; }
 
         [Required(ErrorMessage = "Driver Price is required")]
-        public decimal PriceWithDriver { get; set; }
+        public int PriceWithDriver { get; set; }
 
-        public decimal OvertimeRate { get; set; }
+        public int OvertimeRate { get; set; }
 
         // Make nullable (?)
         public string? FuelPolicy { get; set; }

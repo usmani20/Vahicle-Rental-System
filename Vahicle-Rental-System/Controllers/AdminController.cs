@@ -82,9 +82,9 @@ namespace Vahicle_Rental_System.Controllers
             if (string.IsNullOrEmpty(model.Model)) model.Model = Request.Form["Model"];
             if (string.IsNullOrEmpty(model.Description)) model.Description = Request.Form["Description"];
 
-            if (model.PriceSelfDrive == 0 && decimal.TryParse(Request.Form["PriceSelfDrive"], out decimal self)) model.PriceSelfDrive = self;
-            if (model.PriceWithDriver == 0 && decimal.TryParse(Request.Form["PriceWithDriver"], out decimal driver)) model.PriceWithDriver = driver;
-            if (model.OvertimeRate == 0 && decimal.TryParse(Request.Form["OvertimeRate"], out decimal overtime)) model.OvertimeRate = overtime;
+            if (model.PriceSelfDrive == 0 && int.TryParse(Request.Form["PriceSelfDrive"], out int self)) model.PriceSelfDrive = self;
+            if (model.PriceWithDriver == 0 && int.TryParse(Request.Form["PriceWithDriver"], out int driver)) model.PriceWithDriver = driver;
+            if (model.OvertimeRate == 0 && int.TryParse(Request.Form["OvertimeRate"], out int overtime)) model.OvertimeRate = overtime;
             if (model.Seats == 0 && int.TryParse(Request.Form["Seats"], out int seats)) model.Seats = seats;
             if (model.CategoryId == 0 && int.TryParse(Request.Form["CategoryId"], out int catId)) model.CategoryId = catId;
 
@@ -199,9 +199,9 @@ namespace Vahicle_Rental_System.Controllers
             if (string.IsNullOrEmpty(model.Model)) model.Model = Request.Form["Model"];
             if (string.IsNullOrEmpty(model.Description)) model.Description = Request.Form["Description"];
 
-            if (model.PriceSelfDrive == 0 && decimal.TryParse(Request.Form["PriceSelfDrive"], out decimal self)) model.PriceSelfDrive = self;
-            if (model.PriceWithDriver == 0 && decimal.TryParse(Request.Form["PriceWithDriver"], out decimal driver)) model.PriceWithDriver = driver;
-            if (model.OvertimeRate == 0 && decimal.TryParse(Request.Form["OvertimeRate"], out decimal overtime)) model.OvertimeRate = overtime;
+            if (model.PriceSelfDrive == 0 && int.TryParse(Request.Form["PriceSelfDrive"], out int self)) model.PriceSelfDrive = self;
+            if (model.PriceWithDriver == 0 && int.TryParse(Request.Form["PriceWithDriver"], out int driver)) model.PriceWithDriver = driver;
+            if (model.OvertimeRate == 0 && int.TryParse(Request.Form["OvertimeRate"], out int overtime)) model.OvertimeRate = overtime;
             if (model.Seats == 0 && int.TryParse(Request.Form["Seats"], out int seats)) model.Seats = seats;
             if (model.CategoryId == 0 && int.TryParse(Request.Form["CategoryId"], out int catId)) model.CategoryId = catId;
 

@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Vahicle_Rental_System.Data;
 using Vahicle_Rental_System.Models;
 
 namespace Vahicle_Rental_System.Controllers
@@ -7,16 +9,40 @@ namespace Vahicle_Rental_System.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly AppDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        // FIXED: There is now ONLY ONE constructor. 
+        // This accepts both the Logger and the DbContext.
+        public HomeController(ILogger<HomeController> logger, AppDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
         public IActionResult Index()
         {
             ViewData["ActivePage"] = "Home";
-            return View();
+            // Fetch cars from database to show on the Home page
+            var cars = _context.Cars.Include(c => c.Category).ToList();
+            return View(cars);
+        }
+
+        public IActionResult Cars()
+        {
+            ViewData["ActivePage"] = "Cars";
+            // Fetch all cars from database for the listing page
+            var cars = _context.Cars.Include(c => c.Category).ToList();
+            return View(cars);
+        }
+
+        public IActionResult CarDetails(int id)
+        {
+            ViewData["ActivePage"] = "Cars";
+            var car = _context.Cars.Include(c => c.Category).FirstOrDefault(c => c.Id == id);
+
+            if (car == null) return NotFound();
+
+            return View(car);
         }
 
         public IActionResult About()
@@ -37,30 +63,14 @@ namespace Vahicle_Rental_System.Controllers
             return View();
         }
 
-        public IActionResult Cars()
-        {
-            ViewData["ActivePage"] = "Cars";
-            return View();
-        }
-
-        // Handles the "Details" button for cars
-        public IActionResult CarDetails()
-        {
-            // Keep "Cars" highlighted in the menu
-            ViewData["ActivePage"] = "Cars";
-            return View();
-        }
-
         public IActionResult Blog()
         {
             ViewData["ActivePage"] = "Blog";
             return View();
         }
 
-        // Handles the "Read More" button for blogs
         public IActionResult BlogDetails()
         {
-            // Keep "Blog" highlighted in the menu
             ViewData["ActivePage"] = "Blog";
             return View();
         }
