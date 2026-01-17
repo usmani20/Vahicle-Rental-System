@@ -12,7 +12,7 @@ using Vahicle_Rental_System.Models;
 
 namespace Vahicle_Rental_System.Controllers
 {
-    [Authorize]
+    
     public class AccountController : Controller
     {
         private readonly AppDbContext _context;
