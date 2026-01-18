@@ -51,6 +51,8 @@ builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
+DbSeeder.Seed(app);
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

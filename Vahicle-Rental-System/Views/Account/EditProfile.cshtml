@@ -1,47 +1,230 @@
 ﻿@model Vahicle_Rental_System.Models.EditProfileViewModel
 @{
     ViewData["Title"] = "Edit Profile";
+    // Store the original email to detect changes in JS
+    var originalEmail = Model.Email;
 }
 
-<section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('@Url.Content("~/images/bg_3.jpg")'); height: 400px;">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+<style>
+    .edit-profile-card {
+        border: none;
+        border-radius: 15px;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        overflow: hidden;
+    }
+
+    .form-header-title {
+        border-left: 5px solid #01d28e;
+        padding-left: 15px;
+        margin-bottom: 25px;
+        font-weight: 700;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .custom-label {
+        font-weight: 600;
+        font-size: 13px;
+        color: #666;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+
+    .form-control-premium {
+        height: 50px !important;
+        border-radius: 8px !important;
+        border: 1px solid #e1e1e1 !important;
+        padding: 10px 20px !important;
+        transition: 0.3s;
+    }
+
+        .form-control-premium:focus {
+            border-color: #01d28e !important;
+            box-shadow: 0 0 10px rgba(1, 210, 142, 0.1) !important;
+        }
+
+    input::-ms-reveal, input::-ms-clear {
+        display: none !important;
+    }
+
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #777;
+        display: none;
+        z-index: 10;
+    }
+
+    .btn-save-profile {
+        background: #01d28e !important;
+        border: none !important;
+        border-radius: 50px !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+        transition: 0.3s;
+    }
+
+        .btn-save-profile:hover {
+            background: #01b47a !important;
+            transform: translateY(-2px);
+        }
+
+    .swal2-styled.swal2-confirm {
+        background-color: #01d28e !important;
+    }
+
+    .field-validation-error {
+        color: #ff4d4d;
+        font-size: 11px;
+        margin-top: 5px;
+        display: block;
+        font-weight: 500;
+    }
+
+    /* OTP Modal Styles */
+    .otp-modal {
+        display: none;
+        position: fixed;
+        z-index: 2000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.7);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .otp-container {
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        width: 350px;
+    }
+
+        .otp-container header {
+            height: 60px;
+            width: 60px;
+            background: #01d28e;
+            color: #fff;
+            font-size: 2rem;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+    .otp-input-field {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin: 20px 0;
+    }
+
+        .otp-input-field input {
+            height: 45px;
+            width: 42px;
+            border-radius: 6px;
+            outline: none;
+            font-size: 1.125rem;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+    #verifyBtn:disabled {
+        background: #ccc;
+        border-color: #ccc;
+        pointer-events: none;
+    }
+</style>
+
+<section class="hero-wrap hero-wrap-2" style="background-image: url('@Url.Content("~/images/bg_3.jpg")'); height: 350px;">
     <div class="overlay"></div>
     <div class="container">
-        <div class="row no-gutters slider-text js-fullheight align-items-end justify-content-start">
+        <div class="row no-gutters slider-text align-items-end justify-content-start" style="height: 350px;">
             <div class="col-md-9 ftco-animate pb-5">
-                <h1 class="mb-3 bread">Edit Profile</h1>
+                <h1 class="mb-3 bread">Account Settings</h1>
             </div>
         </div>
     </div>
 </section>
 
-<section class="ftco-section contact-section">
+<section class="ftco-section bg-light">
     <div class="container">
-        <div class="row d-flex mb-5 contact-info justify-content-center">
+        <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="bg-light p-5 contact-form">
-                    <form asp-action="EditProfile" method="post">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <input asp-for="FullName" class="form-control" />
+                <div class="edit-profile-card p-4 p-md-5">
+                    <form id="editProfileForm" asp-action="EditProfile" method="post">
+                        <input type="hidden" name="Otp" id="finalOtp" />
+
+                        <div class="form-header-title">
+                            <i class="ion-ios-person mr-2 text-primary"></i> Personal Details
                         </div>
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input asp-for="Email" class="form-control" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
+
+                        <div class="form-group mb-4">
+                            <label class="custom-label">Your Full Name</label>
+                            <input asp-for="FullName" id="FullName" class="form-control form-control-premium" />
+                            <span asp-validation-for="FullName"></span>
                         </div>
-                        <hr>
-                        <p class="text-muted">Leave password fields blank if you don't want to change it.</p>
-                        <div class="form-group">
-                            <label>New Password</label>
-                            <input asp-for="NewPassword" class="form-control" type="password" />
+
+                        <div class="form-group mb-4">
+                            <label class="custom-label">Email Address</label>
+                            <input asp-for="Email" id="Email" class="form-control form-control-premium" />
+                            <span asp-validation-for="Email"></span>
                         </div>
-                        <div class="form-group">
-                            <label>Confirm New Password</label>
-                            <input asp-for="ConfirmPassword" class="form-control" type="password" />
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+
+                        <div class="form-header-title mt-5">
+                            <i class="ion-ios-lock mr-2 text-primary"></i> Change Password
                         </div>
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary py-3 px-5">Save Changes</button>
+
+                        <div class="form-group mb-4">
+                            <label class="custom-label">Current Password <span class="text-danger">*</span></label>
+                            <div class="password-wrapper">
+                                <input name="OldPassword" id="oldPass" type="password" class="form-control form-control-premium" oninput="checkInput('oldPass', 'toggleOld')" required />
+                                <span id="toggleOld" class="toggle-password" onclick="togglePassword('oldPass', 'toggleOld')"><span class="icon-eye"></span></span>
+                            </div>
+                            <div asp-validation-summary="ModelOnly" class="field-validation-error"></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 form-group mb-4">
+                                <label class="custom-label">New Password</label>
+                                <div class="password-wrapper">
+                                    <input asp-for="NewPassword" id="newPass" type="password" class="form-control form-control-premium" oninput="checkInput('newPass', 'toggleNew')" />
+                                    <span id="toggleNew" class="toggle-password" onclick="togglePassword('newPass', 'toggleNew')"><span class="icon-eye"></span></span>
+                                </div>
+                                <span asp-validation-for="NewPassword"></span>
+                            </div>
+
+                            <div class="col-md-6 form-group mb-4">
+                                <label class="custom-label">Confirm New Password</label>
+                                <div class="password-wrapper">
+                                    <input asp-for="ConfirmPassword" id="confPass" type="password" class="form-control form-control-premium" oninput="checkInput('confPass', 'toggleConf')" />
+                                    <span id="toggleConf" class="toggle-password" onclick="togglePassword('confPass', 'toggleConf')"><span class="icon-eye"></span></span>
+                                </div>
+                                <span asp-validation-for="ConfirmPassword"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4 text-center">
+                            <button type="button" onclick="handleSubmit()" class="btn btn-save-profile py-3 px-5 shadow">
+                                <i class="ion-ios-checkmark-circle mr-2"></i> UPDATE PROFILE
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -49,3 +232,122 @@
         </div>
     </div>
 </section>
+
+<div class="otp-modal" id="otpModal">
+    <div class="otp-container">
+        <header><i class="bx bxs-envelope"></i></header>
+        <h4>Verify New Email</h4>
+        <p style="font-size: 12px; color: #777;">Please enter the 4-digit code sent to your new email address.</p>
+        <div class="otp-input-field" id="otpInputs">
+            <input type="number" maxlength="1" />
+            <input type="number" maxlength="1" disabled />
+            <input type="number" maxlength="1" disabled />
+            <input type="number" maxlength="1" disabled />
+        </div>
+        <button id="verifyBtn" class="btn btn-save-profile" disabled onclick="confirmOtp()">Verify & Save</button>
+        <button class="btn btn-link text-muted mt-2" onclick="closeOtp()">Cancel</button>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const originalEmail = "@originalEmail";
+
+        function checkInput(inputId, iconId) {
+            let input = document.getElementById(inputId);
+            let iconBtn = document.getElementById(iconId);
+            iconBtn.style.display = (input.value.length > 0) ? "block" : "none";
+        }
+
+        function togglePassword(inputId, toggleId) {
+            let input = document.getElementById(inputId);
+            let iconSpan = document.getElementById(toggleId).querySelector('span');
+            if (input.type === "password") {
+                input.type = "text";
+                iconSpan.classList.replace('icon-eye', 'icon-eye-slash');
+            } else {
+                input.type = "password";
+                iconSpan.classList.replace('icon-eye-slash', 'icon-eye');
+            }
+        }
+
+        // Intercept Submit
+        function handleSubmit() {
+            const currentEmail = $("#Email").val();
+            const oldPass = $("#oldPass").val();
+
+            if (!oldPass) {
+                Swal.fire('Error', 'Current password is required to save changes.', 'error');
+                return;
+            }
+
+            if (currentEmail !== originalEmail) {
+                // Email changed, send OTP
+                Swal.fire({ title: 'Sending OTP...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+
+                $.post('@Url.Action("SendOtp", "Account")', { email: currentEmail, isProfileUpdate: true }, function(res) {
+                    Swal.close();
+                    if (res.success) {
+                        $("#otpModal").css("display", "flex");
+                        otpInputs[0].focus();
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                });
+            } else {
+                // No email change, submit normally
+                $("#editProfileForm").submit();
+            }
+        }
+
+        // OTP Input Logic
+        const otpInputs = document.querySelectorAll("#otpInputs input"),
+              verifyBtn = document.getElementById("verifyBtn");
+
+        otpInputs.forEach((input, index1) => {
+            input.addEventListener("keyup", (e) => {
+                const currentInput = input, nextInput = input.nextElementSibling, prevInput = input.previousElementSibling;
+                if (currentInput.value.length > 1) { currentInput.value = ""; return; }
+                if (nextInput && nextInput.hasAttribute("disabled") && currentInput.value !== "") {
+                    nextInput.removeAttribute("disabled");
+                    nextInput.focus();
+                }
+                if (e.key === "Backspace") {
+                    otpInputs.forEach((input, index2) => {
+                        if (index1 <= index2 && prevInput) {
+                            input.setAttribute("disabled", true);
+                            input.value = "";
+                            prevInput.focus();
+                        }
+                    });
+                }
+                if (!otpInputs[3].disabled && otpInputs[3].value !== "") {
+                    verifyBtn.removeAttribute("disabled");
+                    return;
+                }
+                verifyBtn.setAttribute("disabled", true);
+            });
+        });
+
+        function confirmOtp() {
+            let otp = "";
+            otpInputs.forEach(i => otp += i.value);
+            $("#finalOtp").val(otp);
+            $("#editProfileForm").submit();
+        }
+
+        function closeOtp() { $("#otpModal").hide(); }
+
+        $(document).ready(function () {
+            @if (TempData["SuccessMessage"] != null)
+            {
+                    <text>Swal.fire({ icon: 'success', title: 'Success', text: '@TempData["SuccessMessage"]', timer: 3000 });</text>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                    <text>Swal.fire({ icon: 'error', title: 'Error', text: '@TempData["ErrorMessage"]' });</text>
+            }
+        });
+    </script>
+}

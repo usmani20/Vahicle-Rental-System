@@ -31,20 +31,38 @@
             font-family: 'Poppins', sans-serif;
             height: 100vh;
             margin: 0;
+            animation: fadeIn 0.8s ease-out;
         }
 
-            body::before {
-                content: "";
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: -1;
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
             }
 
-        /* --- THEME COLORS & VALIDATION --- */
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: -1;
+        }
+
+        /* --- HIDE BROWSER DEFAULT EYE ICON --- */
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none !important;
+        }
+
         .input-validation-error {
             border: 2px solid #ff4d4d !important;
             background-color: #ffe6e6 !important;
@@ -93,7 +111,7 @@
             padding: 12px 45px;
             letter-spacing: 1px;
             text-transform: uppercase;
-            transition: transform 80ms ease-in;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
 
@@ -128,9 +146,32 @@
             margin: 8px 0;
             width: 100%;
             border-radius: 5px;
+            transition: all 0.3s ease;
         }
 
-        /* --- OTP & PASSWORD UI --- */
+            input:focus {
+                background-color: #fff;
+                box-shadow: 0 0 5px rgba(1, 210, 142, 0.3);
+                outline: none;
+            }
+
+        /* --- PASSWORD WRAPPER & EYE ICON --- */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #777;
+            display: none; /* Hidden until typing starts */
+            z-index: 10;
+        }
+
         .input-group {
             position: relative;
             width: 100%;
@@ -154,31 +195,10 @@
             z-index: 10;
         }
 
-            .btn-send-otp:disabled {
-                background: #ccc;
-                cursor: not-allowed;
-            }
-
-        .password-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #777;
-            display: none;
-        }
-
         .otp-group-hidden {
             display: none !important;
         }
 
-        /* --- CONTAINER & OVERLAYS --- */
         .container {
             background-color: #fff;
             border-radius: 10px;
@@ -188,6 +208,7 @@
             width: 768px;
             max-width: 100%;
             min-height: 520px;
+            transition: transform 0.3s ease;
         }
 
         .form-container {
@@ -219,18 +240,6 @@
             opacity: 1;
             z-index: 5;
             animation: show 0.6s;
-        }
-
-        @@keyframes show {
-            0%, 49.99% {
-                opacity: 0;
-                z-index: 1;
-            }
-
-            50%, 100% {
-                opacity: 1;
-                z-index: 5;
-            }
         }
 
         .overlay-container {
@@ -310,12 +319,14 @@
                 width: 40px;
                 color: #333;
                 text-decoration: none;
+                transition: all 0.3s ease;
             }
 
                 .social-container a:hover {
                     background-color: #01d28e;
                     color: white;
                     border-color: #01d28e;
+                    transform: translateY(-3px);
                 }
 
         .home-link {
@@ -327,6 +338,7 @@
             background: rgba(0,0,0,0.5);
             padding: 5px 10px;
             border-radius: 5px;
+            transition: all 0.3s ease;
         }
     </style>
 </head>
@@ -341,9 +353,9 @@
                 <h1 style="color: #01d28e;">Create Account</h1>
 
                 <div class="social-container">
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social" title="Login with Facebook"><span class="icon-facebook"></span></a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social" title="Login with Google"><span class="icon-google"></span></a>
-                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Microsoft" })" class="social" title="Login with Outlook"><span class="icon-envelope"></span></a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Facebook" })" class="social"><span class="icon-facebook"></span></a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Google" })" class="social"><span class="icon-google"></span></a>
+                    <a href="@Url.Action("SocialLogin", "Account", new { provider = "Microsoft" })" class="social"><span class="icon-envelope"></span></a>
                 </div>
 
                 <span>or use your email for registration</span>
@@ -390,7 +402,11 @@
                 <span>or use your account</span>
 
                 <input type="email" name="Email" placeholder="Email" required />
-                <input type="password" name="Password" placeholder="Password" required />
+
+                <div class="password-wrapper">
+                    <input type="password" name="Password" id="loginPassword" placeholder="Password" oninput="checkInput('loginPassword', 'toggleLoginPass')" required />
+                    <span id="toggleLoginPass" class="toggle-password" onclick="togglePassword('loginPassword', 'toggleLoginPass')"><span class="icon-eye"></span></span>
+                </div>
 
                 @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty] != null)
                 {
@@ -435,7 +451,11 @@
         function checkInput(inputId, iconId) {
             let input = document.getElementById(inputId);
             let iconBtn = document.getElementById(iconId);
-            iconBtn.style.display = (input.value.length > 0) ? "block" : "none";
+            if (input.value.length > 0) {
+                iconBtn.style.display = "block";
+            } else {
+                iconBtn.style.display = "none";
+            }
         }
 
         function togglePassword(inputId, toggleId) {

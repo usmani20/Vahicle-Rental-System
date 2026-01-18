@@ -12,12 +12,116 @@
             margin-top: 0; /* Removes the gap causing the flicker */
             top: 95%; /* Moves it up slightly to overlap the navbar, ensuring connection */
         }
+
+        /* --- IMPROVED SEARCH UI STYLES --- */
+        .nav-search-form {
+            position: relative;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 5px;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            width: 42px;
+            height: 42px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            margin-left: 15px;
+            align-self: center;
+        }
+
+            /* Expand on hover or focus */
+            .nav-search-form:hover,
+            .nav-search-form:focus-within,
+            .nav-search-form:valid {
+                width: 220px;
+                background: #fff;
+                border-color: #01d28e; /* Theme Green */
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            }
+
+            .nav-search-form input {
+                background: transparent;
+                border: none;
+                outline: none;
+                color: #000;
+                font-size: 14px;
+                width: 100%;
+                /* Added padding-right to prevent text from going under the Reset button and Icon */
+                padding: 0 85px 0 15px;
+                opacity: 0;
+                transition: opacity 0.3s;
+                height: 100%;
+                position: relative;
+                z-index: 1;
+            }
+
+            .nav-search-form:hover input,
+            .nav-search-form:focus-within input,
+            .nav-search-form:valid input {
+                opacity: 1;
+            }
+
+            .nav-search-form .fa-search {
+                position: absolute;
+                right: 12px;
+                color: #fff;
+                transition: all 0.3s;
+                pointer-events: none;
+                font-size: 16px;
+                z-index: 2;
+            }
+
+            .nav-search-form:hover .fa-search,
+            .nav-search-form:focus-within .fa-search,
+            .nav-search-form:valid .fa-search {
+                color: #01d28e;
+            }
+
+        /* --- THE FIX: Position Reset button INSIDE the bar to prevent overlapping nav --- */
+        .nav-clear-btn {
+            display: none;
+            position: absolute;
+            right: 35px; /* Aligns to the left of the search icon */
+            font-size: 10px;
+            background: #eee;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 2px 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            z-index: 3;
+            transition: all 0.2s;
+        }
+
+            .nav-clear-btn:hover {
+                background: #ff4d4d;
+                color: #fff;
+                border-color: #ff4d4d;
+            }
+
+        form.nav-search-form:valid .nav-clear-btn {
+            display: block;
+        }
+
+        /* Adjust icon color for light navbar mode */
+        .ftco-navbar-light .nav-search-form:not(:hover):not(:focus-within):not(:valid) {
+            background: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+            .ftco-navbar-light .nav-search-form:not(:hover):not(:focus-within):not(:valid) .fa-search {
+                color: #000;
+            }
     </style>
     <title>@ViewData["Title"] - Carbook</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
 
     <link rel="stylesheet" href="~/css/open-iconic-bootstrap.min.css">
     <link rel="stylesheet" href="~/css/animate.css">
@@ -33,11 +137,19 @@
     <link rel="stylesheet" href="~/css/style.css">
 </head>
 <body>
-   
-  
 
+    @{
+        // --- FIX: Navbar Visibility Logic ---
+        var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+        var navClass = "navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark";
 
-    <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+        if (controller != "Admin")
+        {
+            navClass += " ftco-navbar-light";
+        }
+    }
+
+    <nav class="@navClass" id="ftco-navbar">
         <div class="container">
             <a class="navbar-brand" href="@Url.Action("Index", "Home")">Car<span>Book</span></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,23 +161,33 @@
                     <li class="nav-item @(ViewData["ActivePage"] as string == "Home" ? "active" : "")">
                         <a href="@Url.Action("Index", "Home")" class="nav-link">Home</a>
                     </li>
-                    <li class="nav-item @(ViewData["ActivePage"] as string == "About" ? "active" : "")">
-                        <a href="@Url.Action("About", "Home")" class="nav-link">About</a>
-                    </li>
-                    <li class="nav-item @(ViewData["ActivePage"] as string == "Services" ? "active" : "")">
-                        <a href="@Url.Action("Services", "Home")" class="nav-link">Services</a>
-                    </li>
-                    <li class="nav-item @(ViewData["ActivePage"] as string == "Pricing" ? "active" : "")">
-                        <a href="@Url.Action("Pricing", "Home")" class="nav-link">Pricing</a>
-                    </li>
-                    <li class="nav-item @(ViewData["ActivePage"] as string == "Cars" ? "active" : "")">
-                        <a href="@Url.Action("Cars", "Home")" class="nav-link">Cars</a>
-                    </li>
-                    <li class="nav-item @(ViewData["ActivePage"] as string == "Blog" ? "active" : "")">
-                        <a href="@Url.Action("Blog", "Home")" class="nav-link">Blog</a>
-                    </li>
-                    <li class="nav-item @(ViewData["ActivePage"] as string == "Contact" ? "active" : "")">
-                        <a href="@Url.Action("Contact", "Home")" class="nav-link">Contact</a>
+                    @{
+                        var isAdmin = User.Identity.IsAuthenticated &&
+                        User.Identity.Name.Equals("admin@carbook.com", StringComparison.OrdinalIgnoreCase);
+                    }
+                    @if (!isAdmin)
+                    {
+
+                        <li class="nav-item @(ViewData["ActivePage"] as string == "About" ? "active" : "")">
+                            <a href="@Url.Action("About", "Home")" class="nav-link">About</a>
+                        </li>
+                        <li class="nav-item @(ViewData["ActivePage"] as string == "Services" ? "active" : "")">
+                            <a href="@Url.Action("Services", "Home")" class="nav-link">Services</a>
+                        </li>
+                        <li class="nav-item @(ViewData["ActivePage"] as string == "Cars" ? "active" : "")">
+                            <a href="@Url.Action("Cars", "Home")" class="nav-link">Cars</a>
+                        </li>
+                        <li class="nav-item @(ViewData["ActivePage"] as string == "Contact" ? "active" : "")">
+                            <a href="@Url.Action("Contact", "Home")" class="nav-link">Contact</a>
+                        </li>
+                    }
+
+                    <li class="nav-item d-flex align-items-center">
+                        <form class="nav-search-form" asp-controller="Home" asp-action="Cars" method="get">
+                            <input type="text" name="searchString" placeholder="Search cars..." required autocomplete="off">
+                            <i class="fa fa-search"></i>
+                            <button type="button" class="nav-clear-btn" onclick="clearNavInput()">Reset</button>
+                        </form>
                     </li>
 
                     <li class="nav-item dropdown">
@@ -94,6 +216,11 @@
                                 else
                                 {
                                     /* -- REGULAR USERS ONLY -- */
+
+                                    <a class="dropdown-item" href="@Url.Action("MyBookings", "Booking")">
+                                        <span class="icon-list mr-2"></span> My Bookings
+                                    </a>
+
                                     <a class="dropdown-item" href="@Url.Action("EditProfile", "Account")">
                                         <span class="icon-pencil mr-2"></span> Edit Profile
                                     </a>
@@ -133,7 +260,7 @@
                 <div class="col-md">
                     <div class="ftco-footer-widget mb-4">
                         <h2 class="ftco-heading-2"><a href="#" class="logo">Car<span>book</span></a></h2>
-                        <p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+                        <p>Providing premium vehicle rental services across Karachi. Whether you need a self-drive experience or a professional chauffeur, we ensure comfort, safety, and reliability for every mile of your journey.</p>
                         <ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
                             <li class="ftco-animate"><a href="#"><span class="icon-twitter"></span></a></li>
                             <li class="ftco-animate"><a href="#"><span class="icon-facebook"></span></a></li>
@@ -143,24 +270,12 @@
                 </div>
                 <div class="col-md">
                     <div class="ftco-footer-widget mb-4 ml-md-5">
-                        <h2 class="ftco-heading-2">Information</h2>
+                        <h2 class="ftco-heading-2">Quick Links</h2>
                         <ul class="list-unstyled">
-                            <li><a href="@Url.Action("About", "Home")" class="py-2 d-block">About</a></li>
-                            <li><a href="@Url.Action("Services", "Home")" class="py-2 d-block">Services</a></li>
-                            <li><a href="#" class="py-2 d-block">Term and Conditions</a></li>
-                            <li><a href="#" class="py-2 d-block">Best Price Guarantee</a></li>
-                            <li><a href="#" class="py-2 d-block">Privacy &amp; Cookies Policy</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md">
-                    <div class="ftco-footer-widget mb-4">
-                        <h2 class="ftco-heading-2">Customer Support</h2>
-                        <ul class="list-unstyled">
-                            <li><a href="#" class="py-2 d-block">FAQ</a></li>
-                            <li><a href="#" class="py-2 d-block">Payment Option</a></li>
-                            <li><a href="#" class="py-2 d-block">Booking Tips</a></li>
-                            <li><a href="#" class="py-2 d-block">How it works</a></li>
+                            <li><a href="@Url.Action("Index", "Home")" class="py-2 d-block">Home</a></li>
+                            <li><a href="@Url.Action("About", "Home")" class="py-2 d-block">About Us</a></li>
+                            <li><a href="@Url.Action("Services", "Home")" class="py-2 d-block">Our Services</a></li>
+                            <li><a href="@Url.Action("Cars", "Home")" class="py-2 d-block">Choose a Car</a></li>
                             <li><a href="@Url.Action("Contact", "Home")" class="py-2 d-block">Contact Us</a></li>
                         </ul>
                     </div>
@@ -170,9 +285,9 @@
                         <h2 class="ftco-heading-2">Have a Questions?</h2>
                         <div class="block-23 mb-3">
                             <ul>
-                                <li><span class="icon icon-map-marker"></span><span class="text">203 Fake St. Mountain View, San Francisco, California, USA</span></li>
-                                <li><a href="#"><span class="icon icon-phone"></span><span class="text">+2 392 3929 210</span></a></li>
-                                <li><a href="#"><span class="icon icon-envelope"></span><span class="text">info@@yourdomain.com</span></a></li>
+                                <li><span class="icon icon-map-marker"></span><span class="text">SZABIST UNIVERSITY, 3rd Ave, Block 5 Clifton, Karachi, 75600</span></li>
+                                <li><a href="tel:923172796345"><span class="icon icon-phone"></span><span class="text">+92 317 2796345</span></a></li>
+                                <li><a href="mailto:carbooooooooook@gmail.com"><span class="icon icon-envelope"></span><span class="text">carbooooooooook@@gmail.com</span></a></li>
                             </ul>
                         </div>
                     </div>
@@ -180,10 +295,9 @@
             </div>
             <div class="row">
                 <div class="col-md-12 text-center">
-
                     <p>
                         Copyright &copy;
-                        <script>document.write(new Date().getFullYear());</script> All rights reserved | This template is made with <i class="icon-heart color-danger" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                        <script>document.write(new Date().getFullYear());</script> All rights reserved | This project is made with <i class="icon-heart color-danger" aria-hidden="true"></i> by <a href="#" target="_blank">The Coders Group</a>
                     </p>
                 </div>
             </div>
@@ -211,6 +325,14 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
     <script src="~/js/google-map.js"></script>
     <script src="~/js/main.js"></script>
+
+    <script>
+        function clearNavInput() {
+            const input = document.querySelector('.nav-search-form input');
+            input.value = "";
+            window.location.href = '@Url.Action("Cars", "Home")';
+        }
+    </script>
 
     @RenderSection("Scripts", required: false)
 </body>

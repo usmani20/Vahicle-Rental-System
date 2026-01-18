@@ -1,8 +1,110 @@
-﻿@{
-    ViewData["Title"] = "Car Details";
+﻿@model Vahicle_Rental_System.Models.Car
+@{
+    ViewData["Title"] = Model.Brand + " " + Model.Model;
     ViewData["ActivePage"] = "Cars";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+    /* 1. Map popup height shortened to 300px to prevent scrolling */
+    #map-container {
+        height: 300px;
+        width: 100%;
+        background: #f0f0f0;
+        border-radius: 8px;
+    }
+
+    .map-trigger {
+        cursor: pointer;
+        background: #fff !important;
+    }
+
+    .search-results {
+        position: absolute;
+        z-index: 2000;
+        width: 100%;
+        background: white;
+        border: 1px solid #ddd;
+        display: none;
+        max-height: 120px;
+        overflow-y: auto;
+    }
+
+    .search-item {
+        padding: 8px;
+        cursor: pointer;
+        border-bottom: 1px solid #eee;
+        font-size: 13px;
+    }
+
+        .search-item:hover {
+            background: #01d28e;
+            color: white;
+        }
+
+    .modal-purple-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .btn-submit-map {
+        background-color: #01d28e !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        padding: 12px !important;
+        transition: background 0.3s ease;
+    }
+
+        .btn-submit-map:hover {
+            background-color: #01b47a !important;
+        }
+
+    /* RECTANGULAR 360 BUTTON STYLE */
+    .btn-360-rect {
+        background-color: #000;
+        color: #fff;
+        border: none;
+        padding: 12px 25px;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-radius: 4px; /* Slight curve for modern look */
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+        .btn-360-rect:hover {
+            background-color: #01d28e;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(1, 210, 142, 0.3);
+        }
+
+    /* Iframe sizing for 360 popup */
+    .video-container-360 {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        height: 0;
+        overflow: hidden;
+    }
+
+        .video-container-360 iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+</style>
 
 <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('/images/bg_3.jpg');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
@@ -12,268 +114,313 @@
                 <p class="breadcrumbs">
                     <span class="mr-2"><a href="@Url.Action("Index", "Home")">Home <i class="ion-ios-arrow-forward"></i></a></span>
                     <span class="mr-2"><a href="@Url.Action("Cars", "Home")">Cars <i class="ion-ios-arrow-forward"></i></a></span>
-                    <span>Car details <i class="ion-ios-arrow-forward"></i></span>
+                    <span>@Model.Brand Details</span>
                 </p>
-                <h1 class="mb-3 bread">Car Details</h1>
+                <h1 class="mb-3 bread">Vehicle Specifications</h1>
             </div>
         </div>
     </div>
 </section>
 
-<section class="ftco-section ftco-car-details">
+<section class="ftco-section ftco-car-details bg-light">
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-12">
-                <div class="car-details">
-                    <div class="img rounded" style="background-image: url('/images/bg_1.jpg');"></div>
-                    <div class="text text-center">
-                        <span class="subheading">Cheverolet</span>
-                        <h2>Mercedes Grand Sedan</h2>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div class="row">
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-dashboard"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Mileage
-                                    <span>40,000</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-pistons"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Transmission
-                                    <span>Manual</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-car-seat"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Seats
-                                    <span>5 Adults</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-backpack"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Luggage
-                                    <span>4 Bags</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md d-flex align-self-stretch ftco-animate">
-                <div class="media block-6 services">
-                    <div class="media-body py-md-4">
-                        <div class="d-flex mb-3 align-items-center">
-                            <div class="icon d-flex align-items-center justify-content-center"><span class="flaticon-diesel"></span></div>
-                            <div class="text">
-                                <h3 class="heading mb-0 pl-3">
-                                    Fuel
-                                    <span>Petrol</span>
-                                </h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12 pills">
-                <div class="bd-example bd-example-tabs">
-                    <div class="d-flex justify-content-center">
-                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+            <div class="col-lg-7 ftco-animate">
+                <div class="p-4 bg-white rounded shadow-sm text-center mb-4 d-flex flex-column align-items-center justify-content-center" style="min-height: 450px;">
+                    <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/bg_1.jpg" : Model.ImageUrl)"
+                         alt="@Model.Model" class="img-fluid mb-4"
+                         style="max-height: 350px; width: auto; object-fit: contain; mix-blend-mode: multiply; filter: contrast(110%);">
 
-                            <li class="nav-item">
-                                <a class="nav-link active" id="pills-description-tab" data-toggle="pill" href="#pills-description" role="tab" aria-controls="pills-description" aria-expanded="true">Features</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="pills-manufacturer-tab" data-toggle="pill" href="#pills-manufacturer" role="tab" aria-controls="pills-manufacturer" aria-expanded="true">Description</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" id="pills-review-tab" data-toggle="pill" href="#pills-review" role="tab" aria-controls="pills-review" aria-expanded="true">Review</a>
-                            </li>
-                        </ul>
+                    @if (!string.IsNullOrEmpty(Model.VideoUrl))
+                    {
+                        <button type="button" class="btn-360-rect shadow-sm" data-toggle="modal" data-target="#videoModal">
+                            <i class="ion-ios-eye mr-2" style="font-size: 20px;"></i> Open 360° Interior View
+                        </button>
+                    }
+                </div>
+
+                <div class="bg-white p-4 rounded shadow-sm">
+                    <h4 class="mb-3" style="font-weight: 700; border-bottom: 2px solid #01d28e; display: inline-block; padding-bottom: 5px;">Vehicle Overview</h4>
+                    <p style="font-size: 16px; line-height: 1.8; color: #495057;">@Model.Description</p>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="features list-unstyled">
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Air Conditioning</li>
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Multimedia Audio</li>
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> @(Model.Transmission ?? "Automatic")</li>
+
+                                @if (!string.IsNullOrEmpty(Model.FuelType))
+                                {
+                                    <li class="mb-2"><span class="ion-ios-water mr-2 text-primary"></span> @Model.FuelType</li>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Mileage))
+                                {
+                                    <li class="mb-2"><span class="ion-ios-speedometer mr-2 text-primary"></span> @Model.Mileage</li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="features list-unstyled">
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Central Locking</li>
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Bluetooth Connectivity</li>
+                                <li class="mb-2"><span class="ion-ios-people mr-2 text-primary"></span> @Model.Seats Seats</li>
+
+                                @if (!string.IsNullOrEmpty(Model.Luggage))
+                                {
+                                    <li class="mb-2"><span class="ion-ios-briefcase mr-2 text-primary"></span> @Model.Luggage</li>
+                                }
+                            </ul>
+                        </div>
                     </div>
+                </div>
+            </div>
 
-                    <div class="tab-content" id="pills-tabContent">
-                        <div class="tab-pane fade show active" id="pills-description" role="tabpanel" aria-labelledby="pills-description-tab">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <ul class="features">
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Airconditions</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Child Seat</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>GPS</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Luggage</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Music</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-4">
-                                    <ul class="features">
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Seat Belt</li>
-                                        <li class="remove"><span class="ion-ios-close"></span>Sleeping Bed</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Water</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Bluetooth</li>
-                                        <li class="remove"><span class="ion-ios-close"></span>Onboard computer</li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-4">
-                                    <ul class="features">
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Audio input</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Long Term Trips</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Car Kit</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Remote central locking</li>
-                                        <li class="check"><span class="ion-ios-checkmark"></span>Climate control</li>
-                                    </ul>
-                                </div>
+            <div class="col-lg-5 ftco-animate">
+                <div class="bg-white p-4 rounded shadow-sm h-100 border">
+                    <span class="subheading" style="text-transform: uppercase; letter-spacing: 2px; font-weight: 700; color: #01d28e;">@Model.Category?.Name</span>
+                    <h2 class="mb-3" style="font-weight: 800; color: #000;">@Model.Brand @Model.Model</h2>
+                    <hr>
+
+                    @if (Model.IsAvailable)
+                    {
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-danger p-3">
+                                <p class="mb-2"><i class="ion-ios-alert mr-2"></i>@TempData["Error"]</p>
+
+                                @if (TempData["Error"].ToString().Contains("pending") || TempData["Error"].ToString().Contains("confirmed"))
+                                {
+                                    <a href="@Url.Action("MyBookings", "Booking")" class="btn btn-dark btn-sm w-100 font-weight-bold mt-1">
+                                        Go to My Bookings to Pay <i class="ion-ios-arrow-forward ml-2"></i>
+                                    </a>
+                                }
                             </div>
-                        </div>
+                        }
 
-                        <div class="tab-pane fade" id="pills-manufacturer" role="tabpanel" aria-labelledby="pills-manufacturer-tab">
-                            <p>Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic life One day however a small line of blind text by the name of Lorem Ipsum decided to leave for the far World of Grammar.</p>
-                            <p>When she reached the first hills of the Italic Mountains, she had a last view back on the skyline of her hometown Bookmarksgrove, the headline of Alphabet Village and the subline of her own road, the Line Lane. Pityful a rethoric question ran over her cheek, then she continued her way.</p>
-                        </div>
+                        <form asp-controller="Booking" asp-action="Checkout" method="post">
+                            <input type="hidden" name="CarId" value="@Model.Id" />
 
-                        <div class="tab-pane fade" id="pills-review" role="tabpanel" aria-labelledby="pills-review-tab">
-                            <div class="row">
-                                <div class="col-md-7">
-                                    <h3 class="head">23 Reviews</h3>
-                                    <div class="review d-flex">
-                                        <div class="user-img" style="background-image: url('/images/person_1.jpg')"></div>
-                                        <div class="desc">
-                                            <h4>
-                                                <span class="text-left">Jacob Webb</span>
-                                                <span class="text-right">14 March 2018</span>
-                                            </h4>
-                                            <p class="star">
-                                                <span>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                </span>
-                                                <span class="text-right"><a href="#" class="reply"><i class="icon-reply"></i></a></span>
-                                            </p>
-                                            <p>When she reached the first hills of the Italic Mountains, she had a last view back on the skyline of her hometown Bookmarksgrov</p>
-                                        </div>
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold">WHERE TO PICK UP</label>
+                                <div class="input-group map-trigger" onclick="openFreeMap('PickupLocation')">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="ion-ios-pin text-primary"></i></span>
                                     </div>
-                                    <!-- Additional reviews truncated for brevity -->
+                                    <input type="text" name="PickupLocation" id="PickupLocation" class="form-control border-left-0 map-trigger" placeholder="Select Address on Map *" required />
                                 </div>
-                                <div class="col-md-5">
-                                    <div class="rating-wrap">
-                                        <h3 class="head">Give a Review</h3>
-                                        <div class="wrap">
-                                            <p class="star">
-                                                <span>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    <i class="ion-ios-star"></i>
-                                                    (98%)
-                                                </span>
-                                                <span>20 Reviews</span>
-                                            </p>
-                                            <!-- Other ratings truncated -->
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold">WHERE TO DROP OFF</label>
+                                <div class="input-group map-trigger" onclick="openFreeMap('DropoffLocation')">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="ion-ios-pin text-primary"></i></span>
+                                    </div>
+                                    <input type="text" name="DropoffLocation" id="DropoffLocation" class="form-control border-left-0 map-trigger" placeholder="Select Address on Map *" required />
+                                </div>
+                            </div>
+
+                            <div class="pricing-card mb-4">
+                                <p class="mb-3 text-muted font-weight-bold small">AVAILABLE PACKAGES</p>
+                                <div class="form-check d-flex justify-content-between align-items-center mb-2 p-3 rounded bg-light border">
+                                    <label class="form-check-label d-flex align-items-center mb-0 w-100" style="cursor: pointer;">
+                                        <input type="radio" name="RentalType" value="SelfDrive" checked class="mr-3">
+                                        <div>
+                                            <h5 class="mb-0" style="font-weight: 700;">Self Drive</h5>
+                                            <small class="text-muted">24 Hour cycle</small>
                                         </div>
+                                        <h4 class="ml-auto mb-0" style="color: #01d28e; font-weight: 800;">PKR @Model.PriceSelfDrive.ToString("N0")</h4>
+                                    </label>
+                                </div>
+                                <div class="form-check d-flex justify-content-between align-items-center p-3 rounded bg-light border">
+                                    <label class="form-check-label d-flex align-items-center mb-0 w-100" style="cursor: pointer;">
+                                        <input type="radio" name="RentalType" value="WithDriver" class="mr-3">
+                                        <div>
+                                            <h5 class="mb-0" style="font-weight: 700;">With Driver</h5>
+                                            <small class="text-muted">24 Hour cycle</small>
+                                        </div>
+                                        <h4 class="ml-auto mb-0" style="color: #000; font-weight: 800;">PKR @Model.PriceWithDriver.ToString("N0")</h4>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small font-weight-bold">PICK-UP DATE</label>
+                                        <input type="date" name="PickupDate" id="pickup_date" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small font-weight-bold">DROP-OFF DATE</label>
+                                        <input type="date" name="ReturnDate" id="return_date" class="form-control" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
                                     </div>
                                 </div>
                             </div>
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold">FULL NAME</label>
+                                <input type="text" name="BookerName" class="form-control" required placeholder="Enter your full name" />
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold">PHONE NUMBER</label>
+                                <input type="text" name="BookerPhone" class="form-control" required placeholder="0300-1234567" />
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold">HOME ADDRESS</label>
+                                <input type="text" name="BookerAddress" class="form-control" required placeholder="House #, Street, City" />
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-3 px-5 shadow-sm font-weight-bold">PROCEED TO PAYMENT</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center p-4 mt-3">
+                            <h4 class="text-danger font-weight-bold"><i class="ion-ios-alert"></i> Unavailable</h4>
+                            <p class="mb-3">This vehicle is currently rented out and is not available for booking.</p>
+                            <a href="@Url.Action("Cars", "Home")" class="btn btn-dark shadow-sm">Browse Other Cars</a>
                         </div>
-                    </div>
+                    }
+
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="ftco-section ftco-no-pt">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-12 heading-section text-center ftco-animate mb-5">
-                <span class="subheading">Choose Car</span>
-                <h2 class="mb-2">Related Cars</h2>
+<div class="modal fade" id="videoModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content border-0" style="background: transparent;">
+            <div class="modal-header border-0 p-0 mb-2">
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close" style="opacity: 1; font-size: 30px;">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-        </div>
-        <div class="row">
-            <!-- Related Car 1 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-1.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Mercedes Grand Sedan</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Cheverolet</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
-                        </div>
-                        <p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a></p>
-                    </div>
-                </div>
-            </div>
-            <!-- Related Car 2 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-2.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Range Rover</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Subaru</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
-                        </div>
-                        <p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a></p>
-                    </div>
-                </div>
-            </div>
-            <!-- Related Car 3 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-3.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Mercedes Grand Sedan</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Cheverolet</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
-                        </div>
-                        <p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a></p>
-                    </div>
+            <div class="modal-body p-0">
+                <div class="video-container-360 bg-black rounded overflow-hidden shadow-lg">
+                    <iframe id="videoPlayer" src="@Model.VideoUrl" allowfullscreen></iframe>
                 </div>
             </div>
         </div>
     </div>
-</section>
+</div>
+
+<div class="modal fade" id="freeMapModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-purple-header">
+                <h6 class="modal-title font-weight-bold text-dark">
+                    <span class="ion-ios-pin mr-2 text-primary" style="font-size: 20px;"></span>Select Location on Map
+                </h6>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+            </div>
+            <div class="modal-body p-3">
+                <div class="position-relative mb-3">
+                    <input id="map-search-input" class="form-control" type="text" placeholder="Start typing to search or drag the pin...">
+                    <div id="search-results-box" class="search-results shadow"></div>
+                </div>
+                <div id="map-container"></div>
+                <p class="small text-muted mt-2 text-center">Drag the marker to your exact location in Karachi.</p>
+            </div>
+            <div class="modal-footer border-0 p-3">
+                <input type="hidden" id="activeInputField">
+                <button type="button" class="btn btn-submit-map w-100 py-3" id="submitMapLocation">SUBMIT LOCATION</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let freeMap, mapMarker, currentActiveInput;
+        const karachiCoords = [24.8607, 67.0011];
+
+        // Stop video when modal is closed
+        $('#videoModal').on('hidden.bs.modal', function () {
+            var $iframe = $(this).find('iframe');
+            var src = $iframe.attr('src');
+            $iframe.attr('src', '');
+            $iframe.attr('src', src);
+        });
+
+        function initFreeMap() {
+            if (freeMap) return;
+            freeMap = L.map('map-container').setView(karachiCoords, 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(freeMap);
+
+            mapMarker = L.marker(karachiCoords, { draggable: true }).addTo(freeMap);
+
+            mapMarker.on('dragend', function (event) {
+                var position = mapMarker.getLatLng();
+                updateAddressFromLatLng(position.lat, position.lng);
+            });
+        }
+
+        function openFreeMap(id) {
+            currentActiveInput = id;
+            $('#freeMapModal').modal('show');
+        }
+
+        $('#freeMapModal').on('shown.bs.modal', function () {
+            initFreeMap();
+            freeMap.invalidateSize();
+            freeMap.setView(karachiCoords, 13);
+            mapMarker.setLatLng(karachiCoords);
+            document.getElementById('map-search-input').value = "";
+        });
+
+        const searchInput = document.getElementById('map-search-input');
+        const resultsBox = document.getElementById('search-results-box');
+
+        searchInput.addEventListener('input', function () {
+            const query = this.value;
+            if (query.length < 3) { resultsBox.style.display = 'none'; return; }
+
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&accept-language=en`)
+                .then(res => res.json())
+                .then(data => {
+                    resultsBox.innerHTML = '';
+                    resultsBox.style.display = 'block';
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.className = 'search-item';
+                        div.innerText = item.display_name;
+                        div.onclick = () => {
+                            freeMap.setView([item.lat, item.lon], 16);
+                            mapMarker.setLatLng([item.lat, item.lon]);
+                            searchInput.value = item.display_name;
+                            resultsBox.style.display = 'none';
+                        };
+                        resultsBox.appendChild(div);
+                    });
+                });
+        });
+
+        function updateAddressFromLatLng(lat, lng) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=en`)
+                .then(res => res.json())
+                .then(data => {
+                    searchInput.value = data.display_name;
+                });
+        }
+
+        document.getElementById("submitMapLocation").addEventListener("click", function () {
+            document.getElementById(currentActiveInput).value = searchInput.value || "Selected on Map";
+            $('#freeMapModal').modal('hide');
+        });
+
+        document.getElementById('pickup_date').addEventListener('change', function () {
+            var pickupDate = this.value;
+            var returnDateInput = document.getElementById('return_date');
+            returnDateInput.min = pickupDate;
+            if (returnDateInput.value < pickupDate) {
+                returnDateInput.value = pickupDate;
+            }
+        });
+    </script>
+}

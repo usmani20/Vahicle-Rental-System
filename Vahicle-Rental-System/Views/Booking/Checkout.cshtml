@@ -1,0 +1,98 @@
+﻿@model Vahicle_Rental_System.Models.Car
+@{
+    ViewData["Title"] = "Checkout";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="ftco-section bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="bg-white p-5 rounded shadow-sm">
+                    <h3 class="mb-4 font-weight-bold">Confirm Your Selection</h3>
+
+                    <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
+                        <img src="@Model.ImageUrl" style="width: 150px; border-radius: 10px;" class="mr-4">
+                        <div>
+                            <h4 class="mb-0">@Model.Brand @Model.Model</h4>
+                            <span class="text-primary font-weight-bold">PKR @Model.PriceSelfDrive / day</span>
+                        </div>
+                    </div>
+
+                    <form asp-controller="Booking" asp-action="Checkout" method="post">
+                        <input type="hidden" name="CarId" value="@Model.Id" />
+
+                        <h5 class="mb-3 font-weight-bold">Contact Details</h5>
+                        <div class="form-group">
+                            <label class="label">Full Name</label>
+                            <input type="text" name="BookerName" class="form-control" required placeholder="John Doe">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="label">Phone Number</label>
+                                    <input type="text" name="BookerPhone" class="form-control" required placeholder="0300-1234567">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="label">Home Address</label>
+                                    <input type="text" name="BookerAddress" class="form-control" required placeholder="House #, Street, City">
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="mb-4">
+
+                        <h5 class="mb-3 font-weight-bold">Booking Details</h5>
+
+                        <div class="form-group">
+                            <label class="label">Rental Type</label>
+                            <select name="RentalType" class="form-control" required>
+                                <option value="SelfDrive">Self Drive (PKR @Model.PriceSelfDrive)</option>
+                                <option value="WithDriver">With Driver (PKR @Model.PriceWithDriver)</option>
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="label">Pickup Date</label>
+                                    <input type="date" name="PickupDate" class="form-control" id="pickup" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="label">Return Date</label>
+                                    <input type="date" name="ReturnDate" class="form-control" id="return" required min="@DateTime.Now.ToString("yyyy-MM-dd")">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="label">Pickup Location</label>
+                                    <input type="text" name="PickupLocation" class="form-control" required placeholder="Karachi Airport">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="label">Dropoff Location</label>
+                                    <input type="text" name="DropoffLocation" class="form-control" required placeholder="Clifton, Karachi">
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary py-3 px-4 w-100 mt-4 font-weight-bold">Confirm Booking & Pay</button>
+                    </form>
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

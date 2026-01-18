@@ -11,12 +11,11 @@ namespace Vahicle_Rental_System.Models
         public string Email { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "New Password (leave blank to keep current)")]
+        [RegularExpression(@"^(?=.*[A-Z])(?=.*\d).+$", ErrorMessage = "Password must contain at least one capital letter and one number.")]
         public string? NewPassword { get; set; }
 
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm New Password")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
         public string? ConfirmPassword { get; set; }
     }
 }

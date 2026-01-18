@@ -4,6 +4,53 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    .contact-form {
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        background: #fff;
+    }
+
+    .form-control {
+        border: 2px solid #eee;
+        height: 55px !important;
+        border-radius: 10px;
+        transition: all 0.3s;
+    }
+
+        .form-control:focus {
+            border-color: #01d28e;
+            box-shadow: none;
+            background: #fff;
+        }
+
+    textarea.form-control {
+        height: auto !important;
+    }
+
+    /* Target the specific ID for the map */
+    #map {
+        height: 450px;
+        width: 100%;
+        border-radius: 15px;
+        margin-top: 30px;
+        position: relative;
+        z-index: 1;
+        background-color: #eee;
+    }
+
+    .info-box {
+        transition: transform 0.3s;
+    }
+
+        .info-box:hover {
+            transform: translateY(-5px);
+        }
+</style>
+
 <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('/images/bg_3.jpg');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
     <div class="container">
@@ -25,63 +72,109 @@
             <div class="col-md-4">
                 <div class="row mb-5">
                     <div class="col-md-12">
-                        <div class="border w-100 p-4 rounded mb-2 d-flex">
-                            <div class="icon mr-3">
-                                <span class="icon-map-o"></span>
-                            </div>
-                            <p><span>Address:</span> 198 West 21th Street, Suite 721 New York NY 10016</p>
+                        <div class="border info-box w-100 p-4 rounded mb-2 d-flex align-items-center bg-white shadow-sm">
+                            <div class="icon mr-3"><span class="icon-map-o" style="color: #01d28e;"></span></div>
+                            <p class="mb-0"><span>Address:</span> SZABIST UNIVERSITY, Clifton, Karachi</p>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="border w-100 p-4 rounded mb-2 d-flex">
-                            <div class="icon mr-3">
-                                <span class="icon-mobile-phone"></span>
-                            </div>
-                            <!-- Fixed: tel protocol usually doesn't need // -->
-                            <p><span>Phone:</span> <a href="tel:+1235235598">+ 1235 2355 98</a></p>
+                        <div class="border info-box w-100 p-4 rounded mb-2 d-flex align-items-center bg-white shadow-sm">
+                            <div class="icon mr-3"><span class="icon-mobile-phone" style="color: #01d28e;"></span></div>
+                            <p class="mb-0"><span>Phone:</span> <a href="tel:923172796345">+92 317 2796345</a></p>
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <div class="border w-100 p-4 rounded mb-2 d-flex">
-                            <div class="icon mr-3">
-                                <span class="icon-envelope-o"></span>
-                            </div>
-                            <!--
-                                NOTE: In Razor, writing an email like 'info@yoursite.com' usually works automatically,
-                                but using '@@' (info@@yoursite.com) explicitly escapes it to prevent Razor
-                                from looking for a variable named 'yoursite'.
-                            -->
-                            <p><span>Email:</span> <a href="mailto:info@yoursite.com">info@@yoursite.com</a></p>
+                        <div class="border info-box w-100 p-4 rounded mb-2 d-flex align-items-center bg-white shadow-sm">
+                            <div class="icon mr-3"><span class="icon-envelope-o" style="color: #01d28e;"></span></div>
+                            <p class="mb-0"><span>Email:</span> <a href="mailto:carbooooooooook@gmail.com">carbooooooooook@@gmail.com</a></p>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="col-md-8 block-9 mb-md-5">
-                <form action="#" class="bg-light p-5 contact-form">
+                <form asp-controller="Home" asp-action="Contact" method="post" class="bg-white p-5 contact-form border">
+                    <h3 class="mb-4" style="font-weight: 700;">Get in Touch</h3>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Your Name">
+                        <input type="text" name="name" class="form-control" placeholder="Full Name" required>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Your Email">
+                        <input type="email" name="email" class="form-control" placeholder="Email Address" required>
                     </div>
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Subject">
+                        <input type="text" name="subject" class="form-control" placeholder="Subject" required>
                     </div>
                     <div class="form-group">
-                        <textarea name="" id="" cols="30" rows="7" class="form-control" placeholder="Message"></textarea>
+                        <textarea name="message" cols="30" rows="5" class="form-control" placeholder="How can we help you?" required></textarea>
                     </div>
                     <div class="form-group">
-                        <input type="submit" value="Send Message" class="btn btn-primary py-3 px-5">
+                        <button type="submit" class="btn btn-primary py-3 px-5 btn-block" style="border-radius: 10px; font-weight: 600;">
+                            Send Message
+                        </button>
                     </div>
                 </form>
-
             </div>
         </div>
-        <div class="row justify-content-center">
+
+        <div class="row">
             <div class="col-md-12">
-                <!-- Google Maps placeholder -->
-                <div id="map" class="bg-white"></div>
+                <div id="map" class="shadow-sm border"></div>
             </div>
         </div>
     </div>
 </section>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // DISABLE GOOGLE MAPS: We force-stop any background google map functions
+        var google = null;
+
+        // Initialize OpenStreetMap (Leaflet)
+        function initLeafletMap() {
+            var szabistCoords = [24.8152, 67.0326]; // SZABIST Karachi
+            var map = L.map('map').setView(szabistCoords, 16);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            L.marker(szabistCoords).addTo(map)
+                .bindPopup('<b>SZABIST UNIVERSITY</b>')
+                .openPopup();
+
+            // Fix for map loading in grey tiles
+            setTimeout(function(){ map.invalidateSize(); }, 400);
+        }
+
+        // Run map after everything is loaded
+        $(document).ready(function() {
+            initLeafletMap();
+        });
+
+        // SweetAlert Popups
+        @if (TempData["Success"] != null)
+        {
+                <text>
+                Swal.fire({
+                    title: 'Thank You!',
+                    text: '@TempData["Success"]',
+                    icon: 'success',
+                    confirmButtonColor: '#01d28e'
+                });
+                </text>
+        }
+
+        @if (ViewBag.Error != null)
+        {
+                <text>
+                Swal.fire({
+                    title: 'Oops!',
+                    text: '@ViewBag.Error',
+                    icon: 'error',
+                    confirmButtonColor: '#ff4d4d'
+                });
+                </text>
+        }
+    </script>
+}

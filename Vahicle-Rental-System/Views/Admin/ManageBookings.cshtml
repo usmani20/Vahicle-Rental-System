@@ -1,0 +1,266 @@
+﻿@model IEnumerable<Vahicle_Rental_System.Models.Booking>
+@{
+    ViewData["Title"] = "Manage Bookings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Logic for Descending Reference Numbers
+    int totalCount = Model.Count();
+    int currentRef = totalCount;
+}
+
+<style>
+    .booking-management {
+        margin-top: 120px;
+        margin-bottom: 80px;
+    }
+
+    .filter-card {
+        border: none;
+        border-radius: 12px;
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .form-control-sm {
+        height: 45px !important;
+        border-radius: 8px !important;
+        border: 1px solid #eee !important;
+    }
+
+    .table-container {
+        border-radius: 15px;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #eee;
+    }
+
+    .table thead th {
+        background-color: #f8f9fa;
+        color: #777;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 15px 20px;
+        border: none;
+    }
+
+    .table td {
+        padding: 20px;
+        vertical-align: middle !important;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .status-confirmed {
+        background: #e1f7ec;
+        color: #01d28e;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-returned {
+        background: #f2f2f2;
+        color: #777;
+    }
+
+    .btn-filter {
+        background: #01d28e;
+        color: #fff;
+        font-weight: 700;
+        border-radius: 8px;
+        height: 45px;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-filter:hover {
+            background: #01b47a;
+            color: #fff;
+        }
+
+    .btn-return {
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* REPORT PRINT LOGIC */
+    @@media print {
+        #ftco-navbar, .ftco-footer, .filter-card, .btn-return, .badge-dark, .text-right:last-child, th:last-child {
+            display: none !important;
+        }
+
+        .booking-management {
+            margin-top: 20px !important;
+        }
+
+        .table-container {
+            box-shadow: none !important;
+            border: 1px solid #000 !important;
+        }
+
+        .table td, .table th {
+            border: 1px solid #dee2e6 !important;
+        }
+
+        body {
+            background: white !important;
+        }
+    }
+</style>
+
+<div class="container booking-management">
+    <div class="row align-items-center mb-4">
+        <div class="col-md-5">
+            <h2 style="font-weight: 800; color: #222;">Booking Management</h2>
+            <p class="text-muted small">Monitor customer contact details and rental status.</p>
+        </div>
+        <div class="col-md-7 text-md-right">
+            <button onclick="window.print()" class="btn btn-dark px-4 mr-2" style="border-radius: 8px; height: 45px; font-weight: 700;">
+                <i class="ion-ios-printer mr-2"></i> GENERATE REPORT
+            </button>
+
+            <span class="badge badge-dark px-3 py-2" style="border-radius: 5px; height: 45px; line-height: 28px;">
+                TOTAL RECORDS: @totalCount
+            </span>
+        </div>
+    </div>
+
+    <div class="card filter-card p-4 mb-4 d-print-none">
+        <form method="get" asp-action="ManageBookings">
+            <div class="row align-items-end">
+                <div class="col-md-4">
+                    <label class="small font-weight-bold text-muted">SEARCH CUSTOMER / CAR</label>
+                    <input type="text" name="searchString" class="form-control form-control-sm" placeholder="Search name, phone..." value="@Context.Request.Query["searchString"]" />
+                </div>
+                <div class="col-md-3">
+                    <label class="small font-weight-bold text-muted">VEHICLE TYPE</label>
+                    <select name="category" class="form-control form-control-sm">
+                        <option value="">All Categories</option>
+                        @if (ViewBag.Categories != null)
+                        {
+                            foreach (var cat in ViewBag.Categories)
+                            {
+                                <option value="@cat" selected="@(Context.Request.Query["category"] == cat)">@cat</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="small font-weight-bold text-muted">BOOKING STATUS</label>
+                    <select name="status" class="form-control form-control-sm">
+                        <option value="">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Confirmed">Confirmed</option>
+                        <option value="Returned">Returned</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-filter btn-block">APPLY FILTER</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="table-container shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Ref #</th>
+                        <th>Customer & Address</th>
+                        <th>Vehicle</th>
+                        <th>Rental Period</th>
+                        <th>Amount</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-right d-print-none">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="ion-ios-search-strong" style="font-size: 40px; opacity: 0.2;"></i>
+                                <p class="mt-2">No bookings found matching your search criteria.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="font-weight-bold text-primary">#@(currentRef--)</td>
+                                <td>
+                                    <div style="font-weight: 700; color: #333;">@item.BookerName</div>
+                                    <div class="mb-1">
+                                        <small class="text-muted"><i class="ion-ios-call mr-1 text-primary"></i> @item.BookerPhone</small>
+                                    </div>
+                                    <div style="font-size: 11px; color: #666; max-width: 200px;">
+                                        <i class="ion-ios-location mr-1 text-danger"></i> @item.BookerAddress
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600;">@item.Car?.Brand @item.Car?.Model</div>
+                                    <span class="badge badge-light border" style="font-size: 10px;">@item.Car?.Category?.Name</span>
+                                </td>
+                                <td>
+                                    <div class="small">
+                                        <i class="ion-ios-calendar mr-1"></i> @item.PickupDate.ToString("dd MMM") - @item.ReturnDate.ToString("dd MMM, yyyy")
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="font-weight-bold" style="color: #222;">PKR @item.TotalPrice.ToString("N0")</div>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.Status == "Confirmed")
+                                    {
+                                        <span class="status-badge status-confirmed">ACTIVE RENTAL</span>
+                                    }
+                                    else if (item.Status == "Returned")
+                                    {
+                                        <span class="status-badge status-returned">RETURNED</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-pending">@item.Status.ToUpper()</span>
+                                    }
+                                </td>
+                                <td class="text-right d-print-none">
+                                    @if (item.Status == "Confirmed")
+                                    {
+                                        <form asp-action="ReturnCar" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Confirm vehicle return?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary btn-return px-3">
+                                                <i class="ion-ios-refresh mr-1"></i> MARK RETURNED
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">No Action Required</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+}

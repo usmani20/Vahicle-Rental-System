@@ -1,8 +1,115 @@
-﻿@{
+﻿@model IEnumerable<Vahicle_Rental_System.Models.Car>
+@{
     ViewData["Title"] = "Choose Your Car";
     ViewData["ActivePage"] = "Cars";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
+<style>
+    /* MATCHED SEARCH UI STYLES FROM LAYOUT */
+    .search-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 30px;
+        min-height: 100px;
+        position: relative;
+        z-index: 1;
+    }
+
+    form.search-form {
+        position: relative;
+        background: #fff;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 30px;
+        padding: 5px;
+        transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        width: 42px;
+        height: 42px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+        form.search-form:hover,
+        form.search-form:focus-within,
+        form.search-form:valid {
+            width: 220px;
+            border-color: #01d28e;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        form.search-form input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #000;
+            font-size: 14px;
+            width: 100%;
+            padding: 0 85px 0 15px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            height: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        form.search-form:hover input,
+        form.search-form:focus-within input,
+        form.search-form:valid input {
+            opacity: 1;
+        }
+
+    .fa-search {
+        position: absolute;
+        right: 12px;
+        color: #000;
+        transition: all 0.3s;
+        pointer-events: none;
+        font-size: 16px;
+        z-index: 2;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    form.search-form:hover .fa-search,
+    form.search-form:focus-within .fa-search,
+    form.search-form:valid .fa-search {
+        color: #01d28e;
+    }
+
+    .clear-btn-x {
+        display: none;
+        position: absolute;
+        right: 35px;
+        font-size: 10px;
+        background: #eee;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        padding: 2px 8px;
+        cursor: pointer;
+        white-space: nowrap;
+        z-index: 3;
+        transition: all 0.2s;
+        top: 50%;
+        transform: translateY(-50%);
+        line-height: 1.2;
+    }
+
+        .clear-btn-x:hover {
+            background: #ff4d4d;
+            color: #fff;
+            border-color: #ff4d4d;
+        }
+
+    form.search-form:valid .clear-btn-x {
+        display: block;
+    }
+</style>
 
 <section class="hero-wrap hero-wrap-2 js-fullheight" style="background-image: url('/images/bg_3.jpg');" data-stellar-background-ratio="0.5">
     <div class="overlay"></div>
@@ -13,7 +120,7 @@
                     <span class="mr-2"><a href="@Url.Action("Index", "Home")">Home <i class="ion-ios-arrow-forward"></i></a></span>
                     <span>Cars <i class="ion-ios-arrow-forward"></i></span>
                 </p>
-                <h1 class="mb-3 bread">Choose Your Car</h1>
+                <h1 class="mb-3 bread">Our Premium Fleet</h1>
             </div>
         </div>
     </div>
@@ -21,77 +128,97 @@
 
 <section class="ftco-section bg-light">
     <div class="container">
-        <div class="row">
-            <!-- Example Car Item 1 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-1.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Mercedes Grand Sedan</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Cheverolet</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
-                        </div>
-                        <p class="d-flex mb-0 d-block">
-                            <a href="#" class="btn btn-primary py-2 mr-1">Book now</a>
-                            <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a>
-                        </p>
-                    </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-12 text-center">
+                <div class="search-container">
+                    <form class="search-form" asp-action="Cars" method="get">
+                        <input type="search" name="searchString" value="@ViewBag.CurrentSearch" autofocus required autocomplete="off">
+                        <i class="fa fa-search"></i>
+                        <button type="button" class="clear-btn-x" onclick="clearInput()">Reset</button>
+                    </form>
                 </div>
             </div>
-
-            <!-- Example Car Item 2 -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-2.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Range Rover</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Subaru</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
-                        </div>
-                        <p class="d-flex mb-0 d-block">
-                            <a href="#" class="btn btn-primary py-2 mr-1">Book now</a>
-                            <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- In a real app, you would delete the rest of these static items and use a foreach loop -->
-            <div class="col-md-4">
-                <div class="car-wrap rounded ftco-animate">
-                    <div class="img rounded d-flex align-items-end" style="background-image: url('/images/car-3.jpg');">
-                    </div>
-                    <div class="text">
-                        <h2 class="mb-0"><a href="@Url.Action("CarDetails", "Home")">Mercedes Grand Sedan</a></h2>
-                        <div class="d-flex mb-3">
-                            <span class="cat">Cheverolet</span>
-                            <p class="price ml-auto">$500 <span>/day</span></p>
-                        </div>
-                        <p class="d-flex mb-0 d-block"><a href="#" class="btn btn-primary py-2 mr-1">Book now</a> <a href="@Url.Action("CarDetails", "Home")" class="btn btn-secondary py-2 ml-1">Details</a></p>
-                    </div>
-                </div>
-            </div>
-            <!-- ... (Keep other items or remove as needed) ... -->
-
         </div>
-        <div class="row mt-5">
-            <div class="col text-center">
-                <div class="block-27">
-                    <ul>
-                        <li><a href="#">&lt;</a></li>
-                        <li class="active"><span>1</span></li>
-                        <li><a href="#">2</a></li>
-                        <li><a href="#">3</a></li>
-                        <li><a href="#">4</a></li>
-                        <li><a href="#">5</a></li>
-                        <li><a href="#">&gt;</a></li>
-                    </ul>
+
+        <div class="row mb-5">
+            <div class="col-md-12 text-center">
+                <h2 class="mb-4">Browse by Category</h2>
+                <div class="btn-group flex-wrap" role="group">
+                    <a href="@Url.Action("Cars", "Home")"
+                       class="btn @(string.IsNullOrEmpty(ViewBag.CurrentCategory as string) ? "btn-primary" : "btn-outline-primary") py-3 px-4 m-1 rounded shadow-sm">
+                        All Vehicles
+                    </a>
+
+                    @if (ViewBag.Categories != null)
+                    {
+                        foreach (var cat in ViewBag.Categories)
+                        {
+                            var isSelected = (ViewBag.CurrentCategory as string) == cat;
+                            <a href="@Url.Action("Cars", "Home", new { category = cat })"
+                               class="btn @(isSelected ? "btn-primary" : "btn-outline-primary") py-3 px-4 m-1 rounded shadow-sm">
+                                @cat
+                            </a>
+                        }
+                    }
                 </div>
             </div>
+        </div>
+
+        <div class="row">
+            @if (!Model.Any())
+            {
+                <div class="col-12 text-center py-5">
+                    <h3 class="text-muted">No cars found matching your request.</h3>
+                    <a href="@Url.Action("Cars", "Home")" class="btn btn-dark mt-3">View All Cars</a>
+                </div>
+            }
+            else
+            {
+                @foreach (var car in Model)
+                {
+                    <div class="col-md-4">
+                        <div class="car-wrap rounded ftco-animate mb-4 shadow-sm bg-white">
+                            <div class="img rounded d-flex align-items-end"
+                                 style="background-image: url('@(string.IsNullOrEmpty(car.ImageUrl) ? "/images/default_car.jpg" : car.ImageUrl)'); height: 240px; background-size: cover;">
+                            </div>
+                            <div class="text p-4">
+                                <h2 class="mb-0">
+                                    <a href="@Url.Action("CarDetails", "Home", new { id = car.Id })">@car.Brand @car.Model</a>
+                                </h2>
+                                <div class="d-flex mb-3 align-items-center">
+                                    <span class="cat text-muted">@(car.Category?.Name ?? "Standard")</span>
+                                    <p class="price ml-auto mb-0" style="color: #01d28e; font-weight: 800;">
+                                        PKR @car.PriceSelfDrive.ToString("N0") <span class="text-muted small">/day</span>
+                                    </p>
+                                </div>
+                                <p class="d-flex mb-0 d-block">
+                                    @if (car.IsAvailable)
+                                    {
+                                        <a asp-controller="Home" asp-action="CarDetails" asp-route-id="@car.Id" class="btn btn-primary py-2 w-100 font-weight-bold" style="background-color: #01d28e; border: none;">
+                                            Book This Car
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-secondary py-2 w-100 font-weight-bold" disabled style="background-color: #6c757d; border: none; cursor: not-allowed;">
+                                            Unavailable
+                                        </button>
+                                    }
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
         </div>
     </div>
 </section>
+
+<script>
+    const clearInput = () => {
+        const input = document.querySelector('form.search-form input');
+        input.value = "";
+        window.location.href = '@Url.Action("Cars", "Home")';
+    }
+</script>

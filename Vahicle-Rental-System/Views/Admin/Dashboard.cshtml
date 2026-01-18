@@ -2,113 +2,271 @@
 @{
     ViewData["Title"] = "Admin Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Sequence: Newest ID first (latest additions appear at the top)
+    var sortedCars = Model.OrderByDescending(c => c.Id);
 }
 
+<style>
+    .admin-dashboard {
+        margin-top: 120px;
+        margin-bottom: 80px;
+    }
 
+    .table-card {
+        border: none;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+    }
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="container mt-4">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <strong>Success!</strong> @TempData["SuccessMessage"]
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+    .table thead th {
+        background-color: #f8f9fa;
+        color: #888;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        border-bottom: 1px solid #eee;
+        padding: 15px 20px;
+    }
+
+    .table td {
+        padding: 20px;
+        vertical-align: middle !important;
+        border-top: 1px solid #f2f2f2;
+    }
+
+    .img-preview {
+        width: 80px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .status-pill {
+        padding: 6px 12px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .status-available {
+        background: #e1f7ec;
+        color: #01d28e;
+    }
+
+    .status-rented {
+        background: #ffe5e5;
+        color: #ff4d4d;
+    }
+
+    .btn-action-rounded {
+        width: 35px;
+        height: 35px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+        border: 1px solid #eee;
+        background: #fff;
+        color: #444;
+        margin-left: 5px;
+        cursor: pointer;
+    }
+
+    .btn-edit:hover {
+        background: #fff3cd;
+        color: #856404;
+        border-color: #ffeeba;
+    }
+
+    .btn-delete:hover {
+        background: #f15e5e;
+        color: #fff;
+        border-color: #f15e5e;
+    }
+
+    /* MODERN DELETE MODAL UI */
+    .modal-confirm {
+        color: #636363;
+        width: 400px;
+    }
+
+        .modal-confirm .modal-content {
+            padding: 20px;
+            border-radius: 15px;
+            border: none;
+            text-align: center;
+        }
+
+        .modal-confirm .icon-box {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 3px solid #f15e5e;
+            color: #f15e5e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+    .btn-confirm-secondary {
+        background: #c1c1c1;
+        color: #fff;
+        border-radius: 8px;
+        border: none;
+    }
+
+    .btn-confirm-danger {
+        background: #f15e5e;
+        color: #fff;
+        border-radius: 8px;
+        border: none;
+    }
+</style>
+
+<div class="container admin-dashboard">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="background: #e1f7ec; color: #01d28e; border-left: 4px solid #01d28e !important;">
+            <i class="ion-ios-checkmark-circle mr-2"></i> <strong>Success!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+    }
+
+    <div class="row align-items-center mb-5">
+        <div class="col-md-6">
+            <h2 style="font-weight: 800; color: #222; margin: 0;">Fleet Management</h2>
+            <p class="text-muted small mb-0">Managing @Model.Count() vehicles (Newest first)</p>
+        </div>
+        <div class="col-md-6 text-md-right mt-3 mt-md-0">
+            <a asp-controller="Admin" asp-action="ManageBookings" class="btn btn-outline-dark px-4 py-2 mr-2" style="border-radius:8px; font-weight:700;">
+                <i class="ion-ios-list mr-2"></i> Manage Bookings
+            </a>
+            <a asp-action="AddCar" class="btn btn-primary shadow-sm px-4 py-2" style="background: #01d28e; border: none; border-radius:8px; font-weight:700;">
+                <i class="ion-ios-add-circle mr-2"></i> Register New Car
+            </a>
         </div>
     </div>
-}
 
-<div class="container" style="margin-top: 150px; margin-bottom: 50px;">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary">Admin Dashboard</h2>
-        <a asp-action="AddCar" class="btn btn-success">
-            <span class="icon-plus"></span> Add New Car
-        </a>
-    </div>
-
-    <div class="card shadow">
-        <div class="card-body">
-            <h4 class="card-title mb-3">Car Inventory</h4>
-
-            @if (!Model.Any())
-            {
-                <div class="alert alert-warning text-center">
-                    No cars found! Click the "Add New Car" button to get started.
-                </div>
-            }
-            else
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover table-bordered align-middle">
-                        <thead class="thead-dark">
+    <div class="card table-card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Details</th>
+                            <th>Rental Rates</th>
+                            <th class="text-center">Virtual Tour</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var car in sortedCars)
+                        {
                             <tr>
-                                <th>Image</th>
-                                <th>Vehicle Info</th>
-                                <th>Pricing Plan</th>
-                                <th>Media</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="@car.ImageUrl" class="img-preview mr-3" />
+                                        <div>
+                                            <div style="font-weight: 700; color: #333; font-size: 15px;">@car.Brand @car.Model</div>
+                                            <small class="text-muted">ID: #@car.Id</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge badge-light text-uppercase p-2" style="font-size: 10px; border: 1px solid #eee;">@car.Category?.Name</span>
+                                </td>
+                                <td>
+                                    <div class="small">
+                                        <span class="text-muted">Self:</span> <strong>@car.PriceSelfDrive.ToString("N0")</strong><br />
+                                        <span class="text-muted">Driver:</span> <strong>@car.PriceWithDriver.ToString("N0")</strong>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @* FORCED LOGIC: Using local variable to bypass nullable mapping issues *@
+                                    @{
+                                        string? checkUrl = car.VideoUrl;
+                                    }
+
+                                    @if (!string.IsNullOrWhiteSpace(checkUrl) && checkUrl.Length > 5)
+                                    {
+                                        <a href="@checkUrl" target="_blank" title="Watch 360 Video">
+                                            <i class="ion-ios-play-circle text-danger" style="font-size: 25px;"></i>
+                                            <div class="small text-danger font-weight-bold" style="font-size: 9px; margin-top: -5px;">360&deg;</div>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small" style="opacity:0.5" title="No link provided">-</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (car.IsAvailable)
+                                    {
+                                        <span class="status-pill status-available">Available</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-pill status-rented">Rented</span>
+                                    }
+                                </td>
+                                <td class="text-right">
+                                    <div class="d-flex justify-content-end">
+                                        <a asp-action="EditCar" asp-route-id="@car.Id" class="btn-action-rounded btn-edit" title="Edit">
+                                            <i class="ion-ios-create"></i>
+                                        </a>
+                                        <button type="button" class="btn-action-rounded btn-delete" onclick="openDeleteModal(@car.Id, '@car.Brand @car.Model')" title="Delete">
+                                            <i class="ion-ios-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var car in Model)
-                            {
-                                <tr>
-                                    <td style="width: 100px;">
-                                        <img src="@car.ImageUrl" style="width: 80px; height: 50px; object-fit: cover; border-radius: 5px;" alt="Car Image" />
-                                    </td>
-
-                                    <td>
-                                        <strong>@car.Brand @car.Model</strong><br />
-                                        <span class="badge badge-secondary">@car.Category?.Name</span>
-                                    </td>
-
-                                    <td>
-                                        <small class="text-muted">Self:</small> <b>@car.PriceSelfDrive.ToString("N0")</b> <small>PKR</small><br />
-                                        <small class="text-muted">Driver:</small> <b>@car.PriceWithDriver.ToString("N0")</b> <small>PKR</small>
-                                    </td>
-
-                                    <td class="text-center">
-                                        @if (!string.IsNullOrEmpty(car.VideoUrl))
-                                        {
-                                            <a href="@car.VideoUrl" target="_blank" class="btn btn-sm btn-outline-info" title="Watch 360 Video">
-                                                <span class="icon-play-circle"></span> 360°
-                                            </a>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">-</span>
-                                        }
-                                    </td>
-
-
-                                    <td>
-                                        @if (car.IsAvailable)
-                                        {
-                                            <span class="badge badge-success">Available</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge badge-danger">Rented</span>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        <form asp-action="DeleteCar" method="post" onsubmit="return confirm('Are you sure you want to delete this car?');">
-                                            <input type="hidden" name="id" value="@car.Id" />
-                                            <button type="submit" class="btn btn-sm btn-danger" title="Delete Car">
-                                                <span class="icon-trash"></span> Delete
-                                            </button>
-                                        </form>
-                                        <a asp-action="EditCar" asp-route-id="@car.Id" class="btn btn-sm btn-warning">Edit</a>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<div id="deleteModal" class="modal fade">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header flex-column border-0">
+                <div class="icon-box"><i class="ion-ios-close"></i></div>
+                <h4 class="modal-title w-100 font-weight-bold">Confirm Deletion</h4>
+            </div>
+            <div class="modal-body pt-0">
+                <p class="text-muted">Are you sure you want to delete <b id="delCarName" class="text-dark"></b>? This action is permanent.</p>
+            </div>
+            <div class="modal-footer justify-content-center border-0 pb-4">
+                <button type="button" class="btn btn-confirm-secondary px-4 py-2" data-dismiss="modal">Cancel</button>
+                <form id="deleteForm" asp-action="DeleteCar" method="post">
+                    <input type="hidden" name="id" id="delCarId" />
+                    <button type="submit" class="btn btn-confirm-danger px-4 py-2">Delete Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <script>
+        function openDeleteModal(id, name) {
+            document.getElementById('delCarId').value = id;
+            document.getElementById('delCarName').innerText = name;
+            $('#deleteModal').modal('show');
+        }
+    </script>
+}

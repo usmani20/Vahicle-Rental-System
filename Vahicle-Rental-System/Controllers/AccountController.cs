@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mail;
@@ -22,19 +23,27 @@ namespace Vahicle_Rental_System.Controllers
 
         // --- AJAX: SEND OTP ACTION ---
         [HttpPost]
-        [HttpPost]
-        public IActionResult SendOtp(string email)
+        public IActionResult SendOtp(string email, bool isProfileUpdate = false)
         {
             if (string.IsNullOrEmpty(email))
                 return Json(new { success = false, message = "Please enter an email address." });
 
-            // Ensure Azure Firewall allows your IP to avoid SqlException
-            if (_context.Users.Any(u => u.Email == email))
-                return Json(new { success = false, message = "This email is already registered." });
+            // For registration: check if email exists. 
+            // For profile update: only check if email belongs to ANOTHER user.
+            if (!isProfileUpdate)
+            {
+                if (_context.Users.Any(u => u.Email == email))
+                    return Json(new { success = false, message = "This email is already registered." });
+            }
+            else
+            {
+                if (_context.Users.Any(u => u.Email == email && u.Email != User.Identity.Name))
+                    return Json(new { success = false, message = "This email is already in use by another account." });
+            }
 
-            var otp = new Random().Next(100000, 999999).ToString();
+            // Generate 4-digit OTP to match your new UI
+            var otp = new Random().Next(1000, 9999).ToString();
 
-            // Store in Session (Fixes 'Session not configured' error)
             HttpContext.Session.SetString("CurrentOtp", otp);
             HttpContext.Session.SetString("CurrentEmail", email);
 
@@ -49,75 +58,54 @@ namespace Vahicle_Rental_System.Controllers
             }
         }
 
-        // --- POST: REGISTER ---
+        // --- POST: REGISTER (Updated for AJAX) ---
         [HttpPost]
         public IActionResult Register(RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            var sessionOtp = HttpContext.Session.GetString("CurrentOtp");
+            var sessionEmail = HttpContext.Session.GetString("CurrentEmail");
+
+            if (sessionOtp == null || model.Otp != sessionOtp)
             {
-                // 1. Retrieve OTP from Session
-                var sessionOtp = HttpContext.Session.GetString("CurrentOtp");
-                var sessionEmail = HttpContext.Session.GetString("CurrentEmail");
-
-                // 2. Validate OTP Match
-                if (sessionOtp == null || model.Otp != sessionOtp)
-                {
-                    ModelState.AddModelError("Otp", "Invalid or expired OTP. Please send code again.");
-                    ViewData["IsRegister"] = true;
-                    return View("Auth", model);
-                }
-
-                // 3. Verify Email consistency
-                if (model.Email != sessionEmail)
-                {
-                    ModelState.AddModelError("Email", "Email does not match the verified address.");
-                    ViewData["IsRegister"] = true;
-                    return View("Auth", model);
-                }
-
-                // 4. Final DB Check
-                if (_context.Users.Any(u => u.Email == model.Email))
-                {
-                    ModelState.AddModelError("Email", "Email is already taken.");
-                    ViewData["IsRegister"] = true;
-                    return View("Auth", model);
-                }
-
-                // 5. Create User
-                var user = new User
-                {
-                    FullName = model.FullName,
-                    Email = model.Email,
-                    Password = HashPassword(model.Password),
-                    IsEmailVerified = true // Verified via the OTP process
-                };
-
-                _context.Users.Add(user);
-                _context.SaveChanges();
-
-                // Clear Session after successful registration
-                HttpContext.Session.Remove("CurrentOtp");
-                HttpContext.Session.Remove("CurrentEmail");
-
-                return RedirectToAction("Login");
+                return Json(new { success = false, message = "Invalid or expired OTP." });
             }
 
-            ViewData["IsRegister"] = true;
-            return View("Auth", model);
+            if (model.Email != sessionEmail)
+            {
+                return Json(new { success = false, message = "Email mismatch error." });
+            }
+
+            if (_context.Users.Any(u => u.Email == model.Email))
+            {
+                return Json(new { success = false, message = "Email is already taken." });
+            }
+
+            var user = new User
+            {
+                FullName = model.FullName,
+                Email = model.Email,
+                Password = HashPassword(model.Password),
+                IsEmailVerified = true
+            };
+
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            HttpContext.Session.Remove("CurrentOtp");
+            HttpContext.Session.Remove("CurrentEmail");
+
+            return Json(new { success = true });
         }
 
-        // --- GET: REGISTER & LOGIN ---
         [HttpGet]
         public IActionResult Register() { ViewData["IsRegister"] = true; return View("Auth"); }
 
         [HttpGet]
         public IActionResult Login() { ViewData["IsRegister"] = false; return View("Auth"); }
 
-        // --- POST: LOGIN ---
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            // Admin Seeding
             if (!string.IsNullOrEmpty(model.Email) && model.Email.ToLower() == "admin@carbook.com")
             {
                 if (!_context.Users.Any(u => u.Email == "admin@carbook.com"))
@@ -143,7 +131,6 @@ namespace Vahicle_Rental_System.Controllers
             return View("Auth");
         }
 
-        // --- SOCIAL LOGIN ---
         public IActionResult SocialLogin(string provider)
         {
             var redirectUrl = Url.Action("SocialResponse", "Account");
@@ -180,8 +167,8 @@ namespace Vahicle_Rental_System.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        // --- EDIT PROFILE ---
         [HttpGet]
+        [Authorize]
         public IActionResult EditProfile()
         {
             var userEmail = User.Identity.Name;
@@ -191,22 +178,56 @@ namespace Vahicle_Rental_System.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+        [Authorize]
+        public async Task<IActionResult> EditProfile(EditProfileViewModel model, string OldPassword, string? Otp)
         {
-            if (!ModelState.IsValid) return View(model);
             var user = _context.Users.FirstOrDefault(u => u.Email == User.Identity.Name);
             if (user == null) return RedirectToAction("Login");
 
+            // Verify current password before any changes
+            if (string.IsNullOrEmpty(OldPassword) || HashPassword(OldPassword) != user.Password)
+            {
+                ModelState.AddModelError(string.Empty, "Current password verification failed.");
+                return View(model);
+            }
+
+            // Handle Email Change Verification
+            if (user.Email != model.Email)
+            {
+                var sessionOtp = HttpContext.Session.GetString("CurrentOtp");
+                var sessionEmail = HttpContext.Session.GetString("CurrentEmail");
+
+                if (string.IsNullOrEmpty(Otp) || Otp != sessionOtp || model.Email != sessionEmail)
+                {
+                    TempData["ErrorMessage"] = "Email verification failed. Please try again.";
+                    return View(model);
+                }
+
+                if (_context.Users.Any(u => u.Email == model.Email))
+                {
+                    ModelState.AddModelError("Email", "Email is already in use.");
+                    return View(model);
+                }
+
+                user.Email = model.Email;
+                HttpContext.Session.Remove("CurrentOtp");
+                HttpContext.Session.Remove("CurrentEmail");
+            }
+
             user.FullName = model.FullName;
-            if (user.Email != model.Email && !_context.Users.Any(u => u.Email == model.Email)) user.Email = model.Email;
-            if (!string.IsNullOrEmpty(model.NewPassword)) user.Password = HashPassword(model.NewPassword);
+
+            // Handle Password Change
+            if (!string.IsNullOrEmpty(model.NewPassword))
+            {
+                user.Password = HashPassword(model.NewPassword);
+            }
 
             _context.SaveChanges();
-            await SignInUser(user);
-            return RedirectToAction("Index", "Home");
+            await SignInUser(user); // Refresh Cookie
+            TempData["SuccessMessage"] = "Profile updated successfully!";
+            return RedirectToAction("EditProfile");
         }
 
-        // --- PRIVATE HELPERS ---
         private string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
@@ -231,8 +252,6 @@ namespace Vahicle_Rental_System.Controllers
         {
             var fromAddress = new MailAddress("carbooooooooook@gmail.com", "CarBook Rental");
             var toAddress = new MailAddress(toEmail);
-
-            // Removing spaces from the 16-character App Password
             const string fromPassword = "nchx asxp bbwv mljx";
 
             var smtp = new SmtpClient
@@ -242,14 +261,13 @@ namespace Vahicle_Rental_System.Controllers
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                // The .Replace(" ", "") ensures the 16 characters are joined correctly
                 Credentials = new NetworkCredential(fromAddress.Address, fromPassword.Replace(" ", ""))
             };
 
             string htmlBody = $@"
             <div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px;'>
                 <h2 style='color: #01d28e;'>CarBook Verification Code</h2>
-                <p>Your OTP code is: <b style='font-size: 24px;'>{otpCode}</b></p>
+                <p>Your OTP code is: <b style='font-size: 24px; color: #333;'>{otpCode}</b></p>
                 <p>This code will expire in 20 minutes.</p>
             </div>";
 
@@ -264,8 +282,6 @@ namespace Vahicle_Rental_System.Controllers
             }
         }
 
-
-        // --- FORGOT PASSWORD: SEND OTP ---
         [HttpPost]
         public IActionResult ForgotPassword(string email)
         {
@@ -278,7 +294,6 @@ namespace Vahicle_Rental_System.Controllers
 
             var otp = new Random().Next(100000, 999999).ToString();
 
-            // Store Reset Info in Session
             HttpContext.Session.SetString("ResetOtp", otp);
             HttpContext.Session.SetString("ResetEmail", email);
 
@@ -293,7 +308,6 @@ namespace Vahicle_Rental_System.Controllers
             }
         }
 
-        // --- FORGOT PASSWORD: RESET ACTION ---
         [HttpPost]
         public IActionResult ResetPassword(string email, string otp, string newPassword)
         {
@@ -310,24 +324,14 @@ namespace Vahicle_Rental_System.Controllers
             {
                 user.Password = HashPassword(newPassword);
                 _context.SaveChanges();
-
-                // Clear session after successful reset
                 HttpContext.Session.Remove("ResetOtp");
                 HttpContext.Session.Remove("ResetEmail");
-
                 return Json(new { success = true, message = "Password reset successfully! Please login." });
             }
-
             return Json(new { success = false, message = "User not found." });
         }
 
         [HttpGet]
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
-
-
-
+        public IActionResult ForgotPassword() => View();
     }
 }
