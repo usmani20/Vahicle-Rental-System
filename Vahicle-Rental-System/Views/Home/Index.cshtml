@@ -53,7 +53,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <input type="submit" value="Search Available Cars" class="btn btn-secondary py-3 px-4">
+                                <input asp-action="Cars" type="submit" value="Search Available Cars" class="btn btn-secondary py-3 px-4">
                             </div>
                         </form>
                     </div>
@@ -127,12 +127,34 @@
                                             <span class="cat">@(car.Category?.Name ?? "Car")</span>
                                             <p class="price ml-auto">PKR @car.PriceSelfDrive.ToString("N0") <span>/day</span></p>
                                         </div>
+
                                         <p class="d-flex mb-0 d-block">
-                                            <a asp-controller="Home" asp-action="CarDetails" asp-route-id="@car.Id"
-                                               class="btn btn-primary py-2 w-100 font-weight-bold"
-                                               style="background-color: #01d28e; border: none; text-transform: uppercase; letter-spacing: 1px;">
-                                                Book This Car
-                                            </a>
+                                            @{
+                                                var isAdmin = User.Identity.IsAuthenticated &&
+                                                User.Identity.Name.Equals("admin@carbook.com", StringComparison.OrdinalIgnoreCase);
+                                            }
+
+                                            @if (isAdmin)
+                                            {
+                                                <a href="@Url.Action("EditCar", "Admin", new { id = car.Id })" class="btn btn-warning py-2 w-100 font-weight-bold">
+                                                    Edit Details
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                @if (car.IsAvailable)
+                                                {
+                                                    <a asp-controller="Home" asp-action="CarDetails" asp-route-id="@car.Id" class="btn btn-primary py-2 w-100 font-weight-bold" style="background-color: #01d28e; border: none;">
+                                                        Book This Car
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-secondary py-2 w-100 font-weight-bold" disabled style="cursor: not-allowed; background-color: #cccccc !important; border: none; color: #666;">
+                                                        Unavailable
+                                                    </button>
+                                                }
+                                            }
                                         </p>
                                     </div>
                                 </div>

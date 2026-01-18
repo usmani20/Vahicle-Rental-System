@@ -27,11 +27,27 @@ namespace Vahicle_Rental_System.Controllers
             return View(cars);
         }
 
-        public IActionResult Cars()
+        // GET: Cars (With Filter)
+        public async Task<IActionResult> Cars(string category)
         {
-            ViewData["ActivePage"] = "Cars";
-            // Fetch all cars from database for the listing page
-            var cars = _context.Cars.Include(c => c.Category).ToList();
+            // 1. Get List of Categories for the Buttons
+            ViewBag.Categories = await _context.Categories
+                                               .Select(c => c.Name)
+                                               .Distinct()
+                                               .ToListAsync();
+
+            // 2. Start Query
+            var carsQuery = _context.Cars.Include(c => c.Category).AsQueryable();
+
+            // 3. Apply Filter if category is selected
+            if (!string.IsNullOrEmpty(category))
+            {
+                carsQuery = carsQuery.Where(c => c.Category.Name == category);
+                ViewBag.CurrentCategory = category; // Pass back to view to highlight button
+            }
+
+            // 4. Execute Query
+            var cars = await carsQuery.ToListAsync();
             return View(cars);
         }
 

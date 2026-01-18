@@ -17,43 +17,108 @@
 
 <section class="ftco-section bg-light">
     <div class="container">
+        @if (TempData["Message"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="ion-ios-checkmark-circle mr-2"></i> @TempData["Message"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="ion-ios-alert mr-2"></i> @TempData["Error"]
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+
         <div class="row">
             <div class="col-md-12">
                 <div class="bg-white p-4 shadow-sm rounded">
-                    <table class="table table-hover">
-                        <thead style="background: #01d28e; color: white;">
-                            <tr>
-                                <th>Transaction ID</th>
-                                <th>Vehicle</th>
-                                <th>Dates</th>
-                                <th>Total Paid</th>
-                                <th>Status</th>
-                                <th>Receipt</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td class="small font-weight-bold">@item.TransactionId</td>
-                                    <td>@item.Car.Brand @item.Car.Model</td>
-                                    <td>@item.PickupDate.ToString("MMM dd") - @item.ReturnDate.ToString("MMM dd, yyyy")</td>
-                                    <td class="font-weight-bold" style="color: #01d28e;">PKR @item.TotalPrice.ToString("N0")</td>
-                                    <td>
-                                        <span class="badge @(item.Status == "Confirmed" ? "badge-success" : "badge-warning") p-2">
-                                            @item.Status
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if (item.Status == "Confirmed")
-                                        {
-                                            <a href="@Url.Action("Receipt", "Booking", new { id = item.Id })" class="btn btn-sm btn-outline-success">View</a>
-                                        }
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-5">
+                            <h3 class="text-muted">You haven't booked any cars yet.</h3>
+                            <a href="@Url.Action("Cars", "Home")" class="btn btn-primary mt-3">Browse Cars</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead style="background: #01d28e; color: white;">
+                                    <tr>
+                                        <th>Transaction ID</th>
+                                        <th>Vehicle</th>
+                                        <th>Dates</th>
+                                        <th>Total Paid</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="small font-weight-bold">
+                                                @(string.IsNullOrEmpty(item.TransactionId) ? "---" : item.TransactionId)
+                                            </td>
+                                            <td>
+                                                <strong>@item.Car.Brand @item.Car.Model</strong>
+                                            </td>
+                                            <td>
+                                                <small>@item.PickupDate.ToString("MMM dd") - @item.ReturnDate.ToString("MMM dd, yyyy")</small>
+                                            </td>
+                                            <td class="font-weight-bold" style="color: #01d28e;">
+                                                PKR @item.TotalPrice.ToString("N0")
+                                            </td>
+                                            <td>
+                                                @if (item.Status == "Confirmed")
+                                                {
+                                                    <span class="badge badge-success p-2">Confirmed</span>
+                                                }
+                                                else if (item.Status == "Pending")
+                                                {
+                                                    <span class="badge badge-warning p-2">Pending Payment</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge badge-secondary p-2">@item.Status</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.Status == "Confirmed")
+                                                {
+                                                    <a href="@Url.Action("Receipt", "Booking", new { id = item.Id })" class="btn btn-sm btn-outline-success">
+                                                        <i class="ion-ios-document"></i> Receipt
+                                                    </a>
+                                                }
+                                                else if (item.Status == "Pending")
+                                                {
+                                                    <div class="btn-group" role="group">
+                                                        <a href="@Url.Action("Payment", "Booking", new { id = item.Id })" class="btn btn-sm btn-primary">
+                                                            Pay Now
+                                                        </a>
+
+                                                        <form asp-action="CancelBooking" asp-controller="Booking" method="post" onsubmit="return confirm('Are you sure you want to cancel this booking? This cannot be undone.');">
+                                                            <input type="hidden" name="id" value="@item.Id" />
+                                                            <button type="submit" class="btn btn-sm btn-danger ml-1" title="Cancel Booking">
+                                                                <i class="ion-ios-trash"></i> Cancel
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

@@ -22,12 +22,36 @@
 
 <section class="ftco-section bg-light">
     <div class="container">
-        <div class="row">
 
+        <div class="row mb-5">
+            <div class="col-md-12 text-center">
+                <h2 class="mb-4">Browse by Category</h2>
+                <div class="btn-group flex-wrap" role="group">
+                    <a href="@Url.Action("Cars", "Home")"
+                       class="btn @(string.IsNullOrEmpty(ViewBag.CurrentCategory as string) ? "btn-primary" : "btn-outline-primary") py-3 px-4 m-1 rounded shadow-sm">
+                        All Vehicles
+                    </a>
+
+                    @if (ViewBag.Categories != null)
+                    {
+                        foreach (var cat in ViewBag.Categories)
+                        {
+                            var isSelected = (ViewBag.CurrentCategory as string) == cat;
+                            <a href="@Url.Action("Cars", "Home", new { category = cat })"
+                               class="btn @(isSelected ? "btn-primary" : "btn-outline-primary") py-3 px-4 m-1 rounded shadow-sm">
+                                @cat
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="row">
             @if (!Model.Any())
             {
-                <div class="col-12 text-center">
-                    <h3 class="text-muted">No cars are currently available. Please check back later.</h3>
+                <div class="col-12 text-center py-5">
+                    <h3 class="text-muted">No cars found in this category.</h3>
+                    <a href="@Url.Action("Cars", "Home")" class="btn btn-dark mt-3">View All Cars</a>
                 </div>
             }
             else
@@ -36,7 +60,8 @@
                 {
                     <div class="col-md-4">
                         <div class="car-wrap rounded ftco-animate mb-4 shadow-sm bg-white">
-                            <div class="img rounded d-flex align-items-end" style="background-image: url('@car.ImageUrl'); height: 240px; background-size: cover;">
+                            <div class="img rounded d-flex align-items-end"
+                                 style="background-image: url('@(string.IsNullOrEmpty(car.ImageUrl) ? "/images/default_car.jpg" : car.ImageUrl)'); height: 240px; background-size: cover;">
                             </div>
                             <div class="text p-4">
                                 <h2 class="mb-0">
@@ -48,19 +73,41 @@
                                         PKR @car.PriceSelfDrive.ToString("N0") <span class="text-muted small">/day</span>
                                     </p>
                                 </div>
-                                <p class="d-flex mb-0">
-                                    <a href="@Url.Action("CarDetails", "Home", new { id = car.Id })"
-                                       class="btn btn-primary py-3 w-100 font-weight-bold"
-                                       style="background-color: #01d28e; border: none; text-transform: uppercase; letter-spacing: 1px;">
-                                        Book This Car
-                                    </a>
+
+                                <p class="d-flex mb-0 d-block">
+                                    @{
+                                        // CHECK IF USER IS ADMIN
+                                        var isAdmin = User.Identity.IsAuthenticated &&
+                                        User.Identity.Name.Equals("admin@carbook.com", StringComparison.OrdinalIgnoreCase);
+                                    }
+
+                                    @if (isAdmin)
+                                    {
+                                        <a href="@Url.Action("EditCar", "Admin", new { id = car.Id })" class="btn btn-warning py-2 w-100 font-weight-bold">
+                                            Edit Details <i class="ion-ios-create ml-1"></i>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        @if (car.IsAvailable)
+                                        {
+                                            <a asp-controller="Home" asp-action="CarDetails" asp-route-id="@car.Id" class="btn btn-primary py-2 w-100 font-weight-bold" style="background-color: #01d28e; border: none;">
+                                                Book This Car
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-secondary py-2 w-100 font-weight-bold" disabled style="cursor: not-allowed; background-color: #cccccc !important; border: none; color: #666;">
+                                                Unavailable / Rented
+                                            </button>
+                                        }
+                                    }
                                 </p>
                             </div>
                         </div>
                     </div>
                 }
             }
-
         </div>
 
         <div class="row mt-5">

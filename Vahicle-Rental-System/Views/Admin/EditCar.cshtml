@@ -62,6 +62,23 @@
                         <hr />
                         <div class="row">
                             <div class="col-md-4 form-group">
+                                <label>Fuel Type</label>
+                                <select asp-for="FuelType" class="form-control">
+                                    <option>Petrol</option>
+                                    <option>Diesel</option>
+                                    <option>Electric</option>
+                                    <option>Hybrid</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Mileage (e.g. 14 km/l)</label>
+                                <input asp-for="Mileage" class="form-control" placeholder="12 km/l" />
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label>Luggage (e.g. 2 Bags)</label>
+                                <input asp-for="Luggage" class="form-control" placeholder="2 Bags" />
+                            </div>
+                            <div class="col-md-4 form-group">
                                 <label>Transmission</label>
                                 <select asp-for="Transmission" class="form-control">
                                     <option>Automatic</option>

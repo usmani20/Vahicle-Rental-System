@@ -14,7 +14,6 @@ namespace Vahicle_Rental_System.Models.ViewModels
         [Required(ErrorMessage = "Model is required")]
         public string Model { get; set; }
 
-        // Make string nullable (?) so it is NOT required by default
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "Self Drive Price is required")]
@@ -24,14 +23,14 @@ namespace Vahicle_Rental_System.Models.ViewModels
         public int PriceWithDriver { get; set; }
 
         public int OvertimeRate { get; set; }
-
-        // Make nullable (?)
         public string? FuelPolicy { get; set; }
-
-        // Make nullable (?)
         public string? Transmission { get; set; }
-
         public int Seats { get; set; }
+
+        // --- NEW FIELDS FOR FORM ---
+        public string? Mileage { get; set; }
+        public string? Luggage { get; set; }
+        public string? FuelType { get; set; }
 
         [Required(ErrorMessage = "Please select a category")]
         public int CategoryId { get; set; }

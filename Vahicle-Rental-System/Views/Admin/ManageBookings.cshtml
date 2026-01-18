@@ -1,0 +1,116 @@
+﻿@model IEnumerable<Vahicle_Rental_System.Models.Booking>
+@{
+    ViewData["Title"] = "Manage Bookings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 pt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Booking Management</h2>
+        <span class="badge badge-primary p-2">Total: @Model.Count()</span>
+    </div>
+
+    <form method="get" asp-action="ManageBookings" class="mb-4 p-4 bg-light rounded shadow-sm">
+        <div class="row">
+            <div class="col-md-5">
+                <input type="text" name="searchString" class="form-control" placeholder="Search by Name, Phone, or Car Model..." value="@Context.Request.Query["searchString"]" />
+            </div>
+            <div class="col-md-3">
+                <select name="category" class="form-control">
+                    <option value="">All Categories</option>
+                    @if (ViewBag.Categories != null)
+                    {
+                        foreach (var cat in ViewBag.Categories)
+                        {
+                            <option value="@cat" selected="@(Context.Request.Query["category"] == cat)">@cat</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-control">
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="Returned">Returned</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark btn-block">Filter</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive shadow-sm">
+        <table class="table table-hover table-bordered bg-white">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Ref #</th>
+                    <th>Booker Details</th>
+                    <th>Car Info</th>
+                    <th>Dates</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">No bookings found matching your criteria.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>
+                                <strong>@item.BookerName</strong><br />
+                                <small class="text-muted"><i class="ion-ios-call"></i> @item.BookerPhone</small>
+                            </td>
+                            <td>
+                                <strong>@item.Car?.Brand @item.Car?.Model</strong><br />
+                                <span class="badge badge-info">@item.Car?.Category?.Name</span>
+                            </td>
+                            <td>
+                                <small>@item.PickupDate.ToString("dd MMM") - @item.ReturnDate.ToString("dd MMM yyyy")</small>
+                            </td>
+                            <td class="font-weight-bold">PKR @item.TotalPrice.ToString("N0")</td>
+                            <td>
+                                @if (item.Status == "Confirmed")
+                                {
+                                    <span class="badge badge-success">Active / Rented</span>
+                                }
+                                else if (item.Status == "Returned")
+                                {
+                                    <span class="badge badge-secondary">Returned</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning">@item.Status</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Status == "Confirmed")
+                                {
+                                    <form asp-action="ReturnCar" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Is the car returned? This will make it available for booking again.');">
+                                        <button type="submit" class="btn btn-sm btn-outline-primary btn-block">
+                                            <i class="ion-ios-undo"></i> Return
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">-</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

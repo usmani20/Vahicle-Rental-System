@@ -101,12 +101,28 @@
                             <ul class="features list-unstyled">
                                 <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Air Conditioning</li>
                                 <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Multimedia Audio</li>
+                                <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> @(Model.Transmission ?? "Automatic")</li>
+
+                                @if (!string.IsNullOrEmpty(Model.FuelType))
+                                {
+                                    <li class="mb-2"><span class="ion-ios-water mr-2 text-primary"></span> @Model.FuelType</li>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.Mileage))
+                                {
+                                    <li class="mb-2"><span class="ion-ios-speedometer mr-2 text-primary"></span> @Model.Mileage</li>
+                                }
                             </ul>
                         </div>
                         <div class="col-md-6">
                             <ul class="features list-unstyled">
                                 <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Central Locking</li>
                                 <li class="mb-2"><span class="ion-ios-checkmark-circle mr-2 text-primary"></span> Bluetooth Connectivity</li>
+                                <li class="mb-2"><span class="ion-ios-people mr-2 text-primary"></span> @Model.Seats Seats</li>
+
+                                @if (!string.IsNullOrEmpty(Model.Luggage))
+                                {
+                                    <li class="mb-2"><span class="ion-ios-briefcase mr-2 text-primary"></span> @Model.Luggage</li>
+                                }
                             </ul>
                         </div>
                     </div>
@@ -119,75 +135,110 @@
                     <h2 class="mb-3" style="font-weight: 800; color: #000;">@Model.Brand @Model.Model</h2>
                     <hr>
 
-                    @if (TempData["Error"] != null)
+                    @if (Model.IsAvailable)
                     {
-                        <div class="alert alert-danger">@TempData["Error"]</div>
+                        @if (TempData["Error"] != null)
+                        {
+                            <div class="alert alert-danger p-3">
+                                <p class="mb-2"><i class="ion-ios-alert mr-2"></i>@TempData["Error"]</p>
+
+                                @if (TempData["Error"].ToString().Contains("pending") || TempData["Error"].ToString().Contains("confirmed"))
+                                {
+                                    <a href="@Url.Action("MyBookings", "Booking")" class="btn btn-dark btn-sm w-100 font-weight-bold mt-1">
+                                        Go to My Bookings to Pay <i class="ion-ios-arrow-forward ml-2"></i>
+                                    </a>
+                                }
+                            </div>
+                        }
+
+                        <form asp-controller="Booking" asp-action="Checkout" method="post">
+                            <input type="hidden" name="CarId" value="@Model.Id" />
+
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold">WHERE TO PICK UP</label>
+                                <div class="input-group map-trigger" onclick="openFreeMap('PickupLocation')">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="ion-ios-pin text-primary"></i></span>
+                                    </div>
+                                    <input type="text" name="PickupLocation" id="PickupLocation" class="form-control border-left-0 map-trigger" placeholder="Select Address on Map *" required />
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold">WHERE TO DROP OFF</label>
+                                <div class="input-group map-trigger" onclick="openFreeMap('DropoffLocation')">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-light border-right-0"><i class="ion-ios-pin text-primary"></i></span>
+                                    </div>
+                                    <input type="text" name="DropoffLocation" id="DropoffLocation" class="form-control border-left-0 map-trigger" placeholder="Select Address on Map *" required />
+                                </div>
+                            </div>
+
+                            <div class="pricing-card mb-4">
+                                <p class="mb-3 text-muted font-weight-bold small">AVAILABLE PACKAGES</p>
+                                <div class="form-check d-flex justify-content-between align-items-center mb-2 p-3 rounded bg-light border">
+                                    <label class="form-check-label d-flex align-items-center mb-0 w-100" style="cursor: pointer;">
+                                        <input type="radio" name="RentalType" value="SelfDrive" checked class="mr-3">
+                                        <div>
+                                            <h5 class="mb-0" style="font-weight: 700;">Self Drive</h5>
+                                            <small class="text-muted">24 Hour cycle</small>
+                                        </div>
+                                        <h4 class="ml-auto mb-0" style="color: #01d28e; font-weight: 800;">PKR @Model.PriceSelfDrive.ToString("N0")</h4>
+                                    </label>
+                                </div>
+                                <div class="form-check d-flex justify-content-between align-items-center p-3 rounded bg-light border">
+                                    <label class="form-check-label d-flex align-items-center mb-0 w-100" style="cursor: pointer;">
+                                        <input type="radio" name="RentalType" value="WithDriver" class="mr-3">
+                                        <div>
+                                            <h5 class="mb-0" style="font-weight: 700;">With Driver</h5>
+                                            <small class="text-muted">12 Hour cycle</small>
+                                        </div>
+                                        <h4 class="ml-auto mb-0" style="color: #000; font-weight: 800;">PKR @Model.PriceWithDriver.ToString("N0")</h4>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small font-weight-bold">PICK-UP DATE</label>
+                                        <input type="date" name="PickupDate" id="pickup_date" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small font-weight-bold">DROP-OFF DATE</label>
+                                        <input type="date" name="ReturnDate" id="return_date" class="form-control" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold">FULL NAME</label>
+                                <input type="text" name="BookerName" class="form-control" required placeholder="Enter your full name" />
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label class="small font-weight-bold">PHONE NUMBER</label>
+                                <input type="text" name="BookerPhone" class="form-control" required placeholder="0300-1234567" />
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="small font-weight-bold">HOME ADDRESS</label>
+                                <input type="text" name="BookerAddress" class="form-control" required placeholder="House #, Street, City" />
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 py-3 px-5 shadow-sm font-weight-bold">PROCEED TO PAYMENT</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning text-center p-4 mt-3">
+                            <h4 class="text-danger font-weight-bold"><i class="ion-ios-alert"></i> Unavailable</h4>
+                            <p class="mb-3">This vehicle is currently rented out and is not available for booking.</p>
+                            <a href="@Url.Action("Cars", "Home")" class="btn btn-dark shadow-sm">Browse Other Cars</a>
+                        </div>
                     }
 
-                    <form asp-controller="Booking" asp-action="Checkout" method="post">
-                        <input type="hidden" name="CarId" value="@Model.Id" />
-
-                        <div class="form-group mb-3">
-                            <label class="small font-weight-bold">WHERE TO PICK UP</label>
-                            <div class="input-group map-trigger" onclick="openFreeMap('PickupLocation')">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-light border-right-0"><i class="ion-ios-pin text-primary"></i></span>
-                                </div>
-                                <input type="text" name="PickupLocation" id="PickupLocation" class="form-control border-left-0 map-trigger" placeholder="Select Address on Map *" readonly required />
-                            </div>
-                        </div>
-
-                        <div class="form-group mb-4">
-                            <label class="small font-weight-bold">WHERE TO DROP OFF</label>
-                            <div class="input-group map-trigger" onclick="openFreeMap('DropoffLocation')">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text bg-light border-right-0"><i class="ion-ios-pin text-primary"></i></span>
-                                </div>
-                                <input type="text" name="DropoffLocation" id="DropoffLocation" class="form-control border-left-0 map-trigger" placeholder="Select Address on Map *" readonly required />
-                            </div>
-                        </div>
-
-                        <div class="pricing-card mb-4">
-                            <p class="mb-3 text-muted font-weight-bold small">AVAILABLE PACKAGES</p>
-                            <div class="form-check d-flex justify-content-between align-items-center mb-2 p-3 rounded bg-light border">
-                                <label class="form-check-label d-flex align-items-center mb-0 w-100" style="cursor: pointer;">
-                                    <input type="radio" name="RentalType" value="SelfDrive" checked class="mr-3">
-                                    <div>
-                                        <h5 class="mb-0" style="font-weight: 700;">Self Drive</h5>
-                                        <small class="text-muted">24 Hour cycle</small>
-                                    </div>
-                                    <h4 class="ml-auto mb-0" style="color: #01d28e; font-weight: 800;">PKR @Model.PriceSelfDrive.ToString("N0")</h4>
-                                </label>
-                            </div>
-                            <div class="form-check d-flex justify-content-between align-items-center p-3 rounded bg-light border">
-                                <label class="form-check-label d-flex align-items-center mb-0 w-100" style="cursor: pointer;">
-                                    <input type="radio" name="RentalType" value="WithDriver" class="mr-3">
-                                    <div>
-                                        <h5 class="mb-0" style="font-weight: 700;">With Driver</h5>
-                                        <small class="text-muted">12 Hour cycle</small>
-                                    </div>
-                                    <h4 class="ml-auto mb-0" style="color: #000; font-weight: 800;">PKR @Model.PriceWithDriver.ToString("N0")</h4>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small font-weight-bold">PICK-UP DATE</label>
-                                    <input type="date" name="PickupDate" id="pickup_date" class="form-control" required min="@DateTime.Now.ToString("yyyy-MM-dd")" />
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="small font-weight-bold">DROP-OFF DATE</label>
-                                    <input type="date" name="ReturnDate" id="return_date" class="form-control" required min="@DateTime.Now.AddDays(1).ToString("yyyy-MM-dd")" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 py-3 px-5 shadow-sm font-weight-bold">PROCEED TO PAYMENT</button>
-                    </form>
                 </div>
             </div>
         </div>

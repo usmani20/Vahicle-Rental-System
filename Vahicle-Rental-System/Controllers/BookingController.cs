@@ -23,36 +23,34 @@ namespace Vahicle_Rental_System.Controllers
         {
             var userEmail = User.Identity?.Name;
 
-            // Security check: Match ID and UserEmail
             var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == id && b.UserEmail == userEmail);
 
-            if (booking == null)
-            {
-                return NotFound();
-            }
+            if (booking == null) return NotFound();
 
-            // Restriction: Only allow deletion if Status is Pending
             if (booking.Status == "Pending")
             {
                 _context.Bookings.Remove(booking);
                 await _context.SaveChangesAsync();
-                TempData["Message"] = "Your pending reservation has been successfully removed from your dashboard.";
+                TempData["Message"] = "Your pending reservation has been successfully removed.";
             }
             else
             {
-                TempData["Error"] = "Security Notice: Confirmed and paid bookings cannot be cancelled via the dashboard. Please contact our support team.";
+                TempData["Error"] = "Confirmed bookings cannot be cancelled via dashboard.";
             }
 
             return RedirectToAction("MyBookings");
         }
 
+        // --- FIX IS HERE: Added BookerName, BookerPhone, BookerAddress parameters ---
+        [HttpPost]
         [HttpPost]
         public async Task<IActionResult> Checkout(int CarId, DateTime PickupDate, DateTime ReturnDate,
-                                                 string RentalType, string PickupLocation, string DropoffLocation)
+                                         string RentalType, string PickupLocation, string DropoffLocation,
+                                         string BookerName, string BookerPhone, string BookerAddress) // <--- Added params
         {
             var userEmail = User.Identity?.Name;
 
-            // 1. Prevent one user from booking the same car twice if they have an active or pending request
+            // 1. Prevent double booking
             bool alreadyBookedByUser = await _context.Bookings.AnyAsync(b =>
                 b.CarId == CarId &&
                 b.UserEmail == userEmail &&
@@ -60,34 +58,41 @@ namespace Vahicle_Rental_System.Controllers
 
             if (alreadyBookedByUser)
             {
-                TempData["Error"] = "Our records show you already have a pending or confirmed booking for this car. Please visit your dashboard to manage existing rentals.";
+                TempData["Error"] = "You already have a pending or confirmed booking for this car.";
                 return RedirectToAction("CarDetails", "Home", new { id = CarId });
             }
 
-            // 2. Standard Availability Check (Overlap with other users)
+            // 2. Availability Check
             bool isTaken = await _context.Bookings.AnyAsync(b =>
                 b.CarId == CarId && b.Status == "Confirmed" &&
                 ((PickupDate < b.ReturnDate) && (ReturnDate > b.PickupDate)));
 
             if (isTaken)
             {
-                TempData["Error"] = "Unfortunately, this vehicle has just been reserved by another customer for the selected dates. Please try a different timeframe.";
+                TempData["Error"] = "This vehicle is reserved by another customer for these dates.";
                 return RedirectToAction("CarDetails", "Home", new { id = CarId });
             }
 
             var car = await _context.Cars.FindAsync(CarId);
             if (car == null) return NotFound();
 
-            // 3. Price Calculation (PKR as Integer)
+            // 3. Price Calculation
             int days = (int)(ReturnDate - PickupDate).TotalDays;
             if (days <= 0) days = 1;
             int rate = (RentalType == "SelfDrive") ? car.PriceSelfDrive : car.PriceWithDriver;
 
-            // 4. Create Pending Booking with Map Locations
+            // 4. Create Booking (NOW SAVING CONTACT INFO)
             var booking = new Booking
             {
                 CarId = CarId,
                 UserEmail = userEmail ?? "guest@customer.com",
+
+                // --- SAVE THE NEW DATA ---
+                BookerName = BookerName,
+                BookerPhone = BookerPhone,
+                BookerAddress = BookerAddress,
+                // ------------------------------------
+
                 PickupDate = PickupDate,
                 ReturnDate = ReturnDate,
                 PickupLocation = PickupLocation,
@@ -98,7 +103,7 @@ namespace Vahicle_Rental_System.Controllers
             };
 
             _context.Bookings.Add(booking);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // This will now succeed because BookerAddress is not null
 
             return RedirectToAction("Payment", new { id = booking.Id });
         }
@@ -121,21 +126,20 @@ namespace Vahicle_Rental_System.Controllers
 
             if (string.IsNullOrEmpty(cleanCardNumber) || cleanCardNumber.Length != 16)
             {
-                ViewBag.Error = "Invalid Card Details. Please provide a valid 16-digit card number.";
+                ViewBag.Error = "Invalid Card Details.";
                 return View("Payment", booking);
             }
 
-            // Finalize Booking
             booking.Status = "Confirmed";
             booking.TransactionId = "PKR-TXN-" + Guid.NewGuid().ToString().Substring(0, 8).ToUpper();
 
+            // Mark car unavailable
             var car = await _context.Cars.FindAsync(booking.CarId);
             if (car != null) car.IsAvailable = false;
 
             await _context.SaveChangesAsync();
             SendEmail(booking);
 
-            // Redirect to Receipt instead of returning view directly
             return RedirectToAction("Receipt", new { id = booking.Id });
         }
 
@@ -179,12 +183,11 @@ namespace Vahicle_Rental_System.Controllers
                         <div style='font-family: sans-serif; border: 1px solid #eee; padding: 20px;'>
                             <h2 style='color: #01d28e;'>Rental Confirmed!</h2>
                             <p><b>Vehicle:</b> {b.Car.Brand} {b.Car.Model}</p>
-                            <p><b>Pick-up Location:</b> {b.PickupLocation}</p>
-                            <p><b>Drop-off Location:</b> {b.DropoffLocation}</p>
-                            <p><b>Dates:</b> {b.PickupDate.ToShortDateString()} to {b.ReturnDate.ToShortDateString()}</p>
+                            <p><b>Booker:</b> {b.BookerName} ({b.BookerPhone})</p>
+                            <p><b>Pick-up:</b> {b.PickupLocation}</p>
+                            <p><b>Dates:</b> {b.PickupDate:d} to {b.ReturnDate:d}</p>
                             <hr/>
-                            <h3>Total Paid: PKR {b.TotalPrice.ToString("N0")}</h3>
-                            <p><small>Transaction ID: {b.TransactionId}</small></p>
+                            <h3>Total Paid: PKR {b.TotalPrice:N0}</h3>
                         </div>",
                     IsBodyHtml = true
                 };
